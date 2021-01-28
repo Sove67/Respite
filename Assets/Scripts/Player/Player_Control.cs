@@ -39,8 +39,7 @@ public class Player_Control : MonoBehaviour
         Vector2 middle = new Vector2(Screen.width, Screen.height) / 2;
         Vector2 offset = mouse - middle;
 
-        float angle = 360 - (Mathf.Atan2(offset.y, offset.x) * Mathf.Rad2Deg) + lookOffset;
-
+        float angle = -1 * (Mathf.Atan2(offset.y, offset.x) * Mathf.Rad2Deg + lookOffset);
         offsetPart.transform.rotation = Quaternion.Euler(0, angle, 0);
     }
 
