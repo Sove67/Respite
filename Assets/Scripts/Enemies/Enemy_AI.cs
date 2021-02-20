@@ -107,12 +107,8 @@ public class Enemy_AI : MonoBehaviour
         Vector3 inputVelocity = limitedForce.normalized * (limitedForce.magnitude / body.mass) * Time.fixedDeltaTime; // Taken from https://forum.unity.com/threads/calculating-velocity-from-addforce-and-mass.166557/
         Vector3 resultVelocity = body.velocity + inputVelocity;
         body.velocity = LimitVector3(resultVelocity, settings.minSpeed, settings.maxSpeed);
-
-        if (body.velocity.magnitude > .6) // Stops twitching from tiny speeds
-        {
-            float angle = Mathf.Atan2(body.velocity.z, body.velocity.x) * Mathf.Rad2Deg;
-            body.transform.rotation = Quaternion.Euler(new Vector3(0, angle, 0));
-        }
+        float angle = Mathf.Atan2(body.velocity.z, body.velocity.x) * Mathf.Rad2Deg;
+        body.transform.rotation = Quaternion.Euler(new Vector3(0, angle, 0));
     }
 
     private Vector3 Alignment(IEnumerable<Enemy_AI> boids) // Move in the same direction as the group

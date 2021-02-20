@@ -60,7 +60,7 @@ public class Spawn : MonoBehaviour
             // Apply to character coords
             float x = Mathf.Cos(angle) * radius;
             float z = Mathf.Sin(angle) * radius;
-            Vector3 position = new Vector3(player.position.x + x, player.position.y, player.position.z + z);
+            Vector3 position = new Vector3(player.position.x + x, 1, player.position.z + z);
 
             // TODO Check if coordinate is blocked
 
@@ -68,7 +68,8 @@ public class Spawn : MonoBehaviour
             int packSize = (int) Random.Range(1, settings.packCount + 1);
             for (int i = 0; i < packSize; i++)
             {
-                Instantiate(boid, position, new Quaternion(), transform);
+                Vector3 offset = new Vector3(Random.value, 0, Random.value);
+                Instantiate(boid, position + offset, new Quaternion(), transform);
                 count++;
             }
         }

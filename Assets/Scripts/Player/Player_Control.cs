@@ -27,9 +27,9 @@ public class Player_Control : MonoBehaviour
 
     public void Move() // Get the xy input as a vector 2, and apply it with a speed multiplier over delta time.
     {
+        transform.position = new Vector3(transform.position.x, 0, transform.position.z);
         Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         controller.Move(move * moveMulti * Time.deltaTime);
-
         // Calculate FOV shadows
     }
 
