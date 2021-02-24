@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -14,7 +13,7 @@ public class World : MonoBehaviour
 
         public Area area { get; set; }
         public List<Area> sectors { get; set; }
-        private static int PLANE_SIZE = 10;
+        private readonly static int PLANE_SIZE = 10;
         public Chunk(World world, Vector2Int position, Transform parent)
         {
             this.world = world;
@@ -37,10 +36,11 @@ public class World : MonoBehaviour
                 { chunkTypes.nest, () => InstantiateNest() }
             };
 
-            System.Action instantiator;
-            if (instantiatorList.TryGetValue(GenerateChunkType(position), out instantiator)){
+            if (instantiatorList.TryGetValue(GenerateChunkType(position), out System.Action instantiator))
+            {
                 instantiator.Invoke();
-            } else
+            }
+            else
             { throw new System.Exception("Error: Chunk instantiation dictionary did not contain action for specified key."); }
         }
 
@@ -52,39 +52,37 @@ public class World : MonoBehaviour
 
         public void InstantiateTown()
         {
-            Area.Type townParameters;
-            if (!world.areaParameters.TryGetValue(areaTypes.town, out townParameters))
+            if (!world.areaParameters.TryGetValue(areaTypes.town, out Area.Type townParameters))
             { throw new System.Exception("Error: Area parameter dictionary did not contain values for specified key 'town'."); }
 
-            Area.Type houseParameters;
-            if (!world.areaParameters.TryGetValue(areaTypes.house, out houseParameters))
+            if (!world.areaParameters.TryGetValue(areaTypes.house, out Area.Type houseParameters))
             { throw new System.Exception("Error: Area parameter dictionary did not contain values for specified key 'house'."); }
-            
+
             Debug.Log("Creating Town Area");
             area = new Area(world.settings.seed, world.settings.attempts, position, Vector2Int.one * world.settings.chunkTiles, townParameters);
             GameObject town = new GameObject("Town");
             town.transform.SetParent(self.transform);
             town.transform.localScale = Vector3.one;
 
-            foreach (Vector2Int tile in area.tileMap.getListOfType(Area.tileType.border))
+            foreach (Vector2Int tile in area.tileMap.GetListOfType(Area.tileType.border))
             {
                 GameObject tileParent = new GameObject("Tile " + tile);
                 tileParent.transform.SetParent(town.transform);
                 tileParent.transform.position = new Vector3(tile.x * world.settings.tileSize, 0, tile.y * world.settings.tileSize) + town.transform.position;
                 Area.tileType[] solidTiles = new Area.tileType[] { Area.tileType.border, Area.tileType.connection };
-                Area.tileType[,] neighbouringTiles = area.tileMap.getNeighbouringTiles(tile);
+                Area.tileType[,] neighbouringTiles = area.tileMap.GetNeighbouringTiles(tile);
                 Debug.Log(tile);
-                InstantiateTile(neighbouringTiles, world.settings.tilesetWallExterior, solidTiles, new Area.tileType[] { Area.tileType.exterior, Area.tileType.partition, Area.tileType.invalid }, false, tileParent);
-                InstantiateTile(neighbouringTiles, world.settings.tilesetWallInterior, solidTiles, new Area.tileType[] { Area.tileType.interior, Area.tileType.partition, Area.tileType.invalid }, true, tileParent);
+                InstantiateTile(neighbouringTiles, world.settings.tilesetWallExterior, solidTiles, new Area.tileType[] { Area.tileType.exterior, Area.tileType.partition, Area.tileType.invalid }, tileParent);
+                InstantiateTile(neighbouringTiles, world.settings.tilesetWallInterior, solidTiles, new Area.tileType[] { Area.tileType.interior, Area.tileType.partition, Area.tileType.invalid }, tileParent);
             }
 
-            List<Vector2Int> areaConnections = area.tileMap.getListOfType(Area.tileType.connection);
+            List<Vector2Int> areaConnections = area.tileMap.GetListOfType(Area.tileType.connection);
             foreach (Vector2Int tile in areaConnections)
             {
                 GameObject tileParent = new GameObject("Tile " + tile);
                 tileParent.transform.SetParent(town.transform);
                 tileParent.transform.position = new Vector3(tile.x * world.settings.tileSize, 0, tile.y * world.settings.tileSize) + town.transform.position;
-                bool[] connections = area.tileMap.getConnections(tile, new List<Area.tileType>() { Area.tileType.border, Area.tileType.partition });
+                bool[] connections = area.tileMap.GetConnections(tile, new List<Area.tileType>() { Area.tileType.border, Area.tileType.partition });
                 if (connections[0] && connections[1])
                 { Instantiate(world.settings.tilesetWallInterior[3], tileParent.transform.position, Quaternion.Euler(0, 90, 0), tileParent.transform); }
                 else if (connections[2] && connections[3])
@@ -94,7 +92,7 @@ public class World : MonoBehaviour
             for (int i = 0; i < area.sectors.Count; i++)
             {
                 Debug.Log("Creating Sector Area" + i);
-                Vector2Int offset = area.getSectorOffset(i) * world.settings.tileSize;
+                Vector2Int offset = area.GetSectorOffset(i) * world.settings.tileSize;
                 GameObject house = new GameObject("House " + i + ": " + offset);
                 house.transform.SetParent(self.transform);
                 house.transform.localScale = Vector3.one;
@@ -102,29 +100,29 @@ public class World : MonoBehaviour
                 Area thisSector = new Area(world.settings.seed, world.settings.attempts, offset, area.sectors[i], houseParameters);
                 sectors.Add(thisSector);
 
-                List<Vector2Int> houseTiles = thisSector.tileMap.getListOfType(new List<Area.tileType> { Area.tileType.border, Area.tileType.partition });
+                List<Vector2Int> houseTiles = thisSector.tileMap.GetListOfType(new List<Area.tileType> { Area.tileType.border, Area.tileType.partition });
                 foreach (Vector2Int tile in houseTiles)
                 {
                     GameObject tileParent = new GameObject("Tile " + tile);
                     tileParent.transform.SetParent(house.transform);
                     tileParent.transform.position = new Vector3(tile.x * world.settings.tileSize, 0, tile.y * world.settings.tileSize) + house.transform.position;
                     Area.tileType[] solidTiles = new Area.tileType[] { Area.tileType.border, Area.tileType.partition, Area.tileType.connection };
-                    Area.tileType[,] neighbouringTiles = thisSector.tileMap.getNeighbouringTiles(tile);
-                    InstantiateTile(neighbouringTiles, world.settings.tilesetHouseExterior, solidTiles, new Area.tileType[] { Area.tileType.exterior, Area.tileType.invalid }, false, tileParent);
-                    InstantiateTile(neighbouringTiles, world.settings.tilesetHouseInterior, solidTiles, new Area.tileType[] { Area.tileType.interior, Area.tileType.invalid }, true, tileParent);
+                    Area.tileType[,] neighbouringTiles = thisSector.tileMap.GetNeighbouringTiles(tile);
+                    InstantiateTile(neighbouringTiles, world.settings.tilesetHouseExterior, solidTiles, new Area.tileType[] { Area.tileType.exterior, Area.tileType.invalid }, tileParent);
+                    InstantiateTile(neighbouringTiles, world.settings.tilesetHouseInterior, solidTiles, new Area.tileType[] { Area.tileType.interior, Area.tileType.invalid }, tileParent);
                 }
 
-                List<Vector2Int> houseConnections = thisSector.tileMap.getListOfType(Area.tileType.connection);
+                List<Vector2Int> houseConnections = thisSector.tileMap.GetListOfType(Area.tileType.connection);
                 foreach (Vector2Int tile in houseConnections)
                 {
                     GameObject tileParent = new GameObject("Tile " + tile);
                     tileParent.transform.SetParent(house.transform);
                     tileParent.transform.position = new Vector3(tile.x * world.settings.tileSize, 0, tile.y * world.settings.tileSize) + house.transform.position;
-                    bool[] connections = thisSector.tileMap.getConnections(tile, new List<Area.tileType>() { Area.tileType.border, Area.tileType.partition });
-                        if (connections[0] && connections[1])
-                        { Instantiate(world.settings.tilesetWallInterior[3], tileParent.transform.position, Quaternion.Euler(0, 90, 0), tileParent.transform); }
-                        else if (connections[2] && connections[3])
-                        { Instantiate(world.settings.tilesetWallInterior[3], tileParent.transform.position, Quaternion.Euler(0, 0, 0), tileParent.transform); }
+                    bool[] connections = thisSector.tileMap.GetConnections(tile, new List<Area.tileType>() { Area.tileType.border, Area.tileType.partition });
+                    if (connections[0] && connections[1])
+                    { Instantiate(world.settings.tilesetWallInterior[3], tileParent.transform.position, Quaternion.Euler(0, 90, 0), tileParent.transform); }
+                    else if (connections[2] && connections[3])
+                    { Instantiate(world.settings.tilesetWallInterior[3], tileParent.transform.position, Quaternion.Euler(0, 0, 0), tileParent.transform); }
                 }
             }
 
@@ -135,8 +133,7 @@ public class World : MonoBehaviour
         {
             try
             {
-                Area.Type nestParameters;
-                if (!world.areaParameters.TryGetValue(areaTypes.nest, out nestParameters))
+                if (!world.areaParameters.TryGetValue(areaTypes.nest, out Area.Type nestParameters))
                 { throw new System.Exception("Error: Area parameter dictionary did not contain values for specified key 'nest'."); }
 
                 area = new Area(world.settings.seed, world.settings.attempts, position, Vector2Int.one * world.settings.chunkTiles, nestParameters);
@@ -148,7 +145,7 @@ public class World : MonoBehaviour
             }
         }
 
-        private void InstantiateTile(Area.tileType[,] neighbouringTiles, List<GameObject> tileset, Area.tileType[] solidTiles, Area.tileType[] emptyTile, bool connection, GameObject parent)
+        private void InstantiateTile(Area.tileType[,] neighbouringTiles, List<GameObject> tileset, Area.tileType[] solidTiles, Area.tileType[] emptyTile, GameObject parent)
         {
             /* Tile Patterns
              * Key
@@ -286,7 +283,7 @@ public class World : MonoBehaviour
         public chunkTypes GenerateChunkType(Vector2Int position)
         {
             System.Random randomizer = new System.Random((int)(world.settings.seed * (position.x + .5f) * (position.y + .5f)));
-            float value = (float) randomizer.NextDouble();
+            float value = (float)randomizer.NextDouble();
 
             chunkTypes type;
             if (value < world.settings.forestRange.x) { type = chunkTypes.nest; }
@@ -299,24 +296,20 @@ public class World : MonoBehaviour
 
     public World_Settings settings;
     public GameObject player;
-    private System.Random randomizer;
 
     public enum chunkTypes { town, forest, nest };
 
     private Vector2 playerPos { get { return new Vector2(player.transform.position.x, player.transform.position.z); } }
-    private List<Chunk> chunkList = new List<Chunk>();
+    private readonly List<Chunk> chunkList = new List<Chunk>();
     private List<Chunk> activeChunks = new List<Chunk>();
 
     public enum areaTypes { town, house, nest };
-    private Dictionary<areaTypes, Area.Type> areaParameters = new Dictionary<areaTypes, Area.Type>();
+    private readonly Dictionary<areaTypes, Area.Type> areaParameters = new Dictionary<areaTypes, Area.Type>();
 
     public void Start()
     {
-        //Initialize randomizer with seed
-        randomizer = new System.Random(settings.seed);
-
         // Package Area Parameters
-        areaParameters.Add(areaTypes.town, 
+        areaParameters.Add(areaTypes.town,
             (new Area.Type(
             settings.townAreaResolution,
             settings.townMinDimension,
@@ -324,7 +317,7 @@ public class World : MonoBehaviour
             settings.townSecondaryConnectionCount,
             settings.townSectorCount)));
 
-        areaParameters.Add(areaTypes.house, 
+        areaParameters.Add(areaTypes.house,
             (new Area.Type(
             settings.houseAreaResolution,
             settings.houseMinDimension,
@@ -332,8 +325,8 @@ public class World : MonoBehaviour
             settings.houseSecondaryConnectionCount,
             settings.houseSectorCount)));
 
-        areaParameters.Add(areaTypes.nest, 
-            (new Area.Type( 
+        areaParameters.Add(areaTypes.nest,
+            (new Area.Type(
             settings.nestAreaResolution,
             settings.nestMinDimension,
             settings.nestPrimaryConnectionCount,
@@ -344,13 +337,7 @@ public class World : MonoBehaviour
         UpdateActiveChunks(playerPos);
 
         //Test Chunk Constructor
-        Chunk testChunk = new Chunk(this, Vector2Int.zero, transform);
-    }
-
-    public void Update()
-    {
-        //
-        //UpdateActiveChunks(playerPos);
+        new Chunk(this, Vector2Int.zero, transform);
     }
 
     public void UpdateActiveChunks(Vector2 position)

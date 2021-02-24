@@ -1,6 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System;
 using UnityEngine;
 
 public class Player_Control : MonoBehaviour
@@ -15,7 +13,11 @@ public class Player_Control : MonoBehaviour
     [Header("Variables")]
     public float moveMulti;
 
+    [Header("Scripts")]
+    public Build buildScript;
+
     private const int lookOffset = 90;
+    private bool placingObject = false;
 
     // Functions
     private void Update()
@@ -23,6 +25,15 @@ public class Player_Control : MonoBehaviour
         Move();
         Look();
         Interact();
+
+        if (Input.GetKeyDown("q"))
+        {
+            buildScript.SetMenuActive();
+        }
+        if (Input.GetMouseButtonDown(0))
+        {
+            buildScript.TryTrigger();
+        }
     }
 
     public void Move() // Get the xy input as a vector 2, and apply it with a speed multiplier over delta time.

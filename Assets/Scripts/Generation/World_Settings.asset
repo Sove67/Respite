@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: World_Settings
   m_EditorClassIdentifier: 
   activeChunkRadius: 2
-  seed: 20
+  seed: 21
   chunkTiles: 100
   forestRange: {x: 0, y: 0}
   tileSize: 2

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Spawn : MonoBehaviour
@@ -10,13 +9,14 @@ public class Spawn : MonoBehaviour
     public GameObject boid;
 
     private float timer;
-    private List<Transform> children = new List<Transform>();
+    private readonly List<Transform> children = new List<Transform>();
 
     // Functions
     void Update()
     {
         timer += Time.deltaTime;
-        if (timer >= settings.spawnTimer) {
+        if (timer >= settings.spawnTimer)
+        {
             timer = 0;
 
             Debug.Log("Timer Elapsed.");
@@ -24,12 +24,12 @@ public class Spawn : MonoBehaviour
             int i = 0;
             children.Clear();
             foreach (Transform child in transform)
-            { 
+            {
                 // Clearing
                 if (Vector3.Distance(child.position, player.position) > settings.radiusMax)
                 {
-                    child.GetComponent<Enemy_AI>().Die(); i++; 
-                } 
+                    child.GetComponent<Enemy_AI>().Die(); i++;
+                }
 
                 else
                 { children.Add(child); }
@@ -42,12 +42,12 @@ public class Spawn : MonoBehaviour
             {
                 Debug.Log("Spawning.");
                 // if pop below min, run the spawn script until max is reached.
-                spawn(children.Count);
+                SpawnGroup(children.Count);
             }
         }
     }
 
-    public void spawn(int count)
+    public void SpawnGroup(int count)
     {
         //while pop count is less than max
         while (count < settings.popMax)
@@ -65,7 +65,7 @@ public class Spawn : MonoBehaviour
             // TODO Check if coordinate is blocked
 
             // Spawn all boids in “pack” at same coordinate (Collision displacement will spread them out)
-            int packSize = (int) Random.Range(1, settings.packCount + 1);
+            int packSize = (int)Random.Range(1, settings.packCount + 1);
             for (int i = 0; i < packSize; i++)
             {
                 Vector3 offset = new Vector3(Random.value, 0, Random.value);

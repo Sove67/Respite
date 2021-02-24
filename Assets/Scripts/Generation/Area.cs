@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -31,27 +30,27 @@ public class Area // This class holds data on which edges of a sector border ano
             {
                 for (int y = 0; y < size.y; y++)
                 {
-                    setTile(x, y, tileType.invalid);
+                    SetTile(x, y, tileType.invalid);
                 }
             }
 
             foreach (Vector2Int point in area)
             {
-                setTile(point, tileType.exterior);
+                SetTile(point, tileType.exterior);
             }
         }
 
         // Set a tile
-        public void setTile(int x, int y, tileType type)
+        public void SetTile(int x, int y, tileType type)
         {
             typeMap[x, y] = type;
         }
 
-        public void setTile(Vector2Int location, tileType type) // Vector2Int Support
-        { setTile(location.x, location.y, type); }
+        public void SetTile(Vector2Int location, tileType type) // Vector2Int Support
+        { SetTile(location.x, location.y, type); }
 
         // return coords of typeMap of type
-        public List<Vector2Int> getListOfType(tileType type)
+        public List<Vector2Int> GetListOfType(tileType type)
         {
             List<Vector2Int> coords = new List<Vector2Int>();
             for (int x = 0; x < typeMap.GetLength(0); x++)
@@ -67,7 +66,7 @@ public class Area // This class holds data on which edges of a sector border ano
 
             return coords;
         }
-        public List<Vector2Int> getListOfType(List<tileType> type)
+        public List<Vector2Int> GetListOfType(List<tileType> type)
         {
             List<Vector2Int> coords = new List<Vector2Int>();
             for (int x = 0; x < typeMap.GetLength(0); x++)
@@ -85,26 +84,24 @@ public class Area // This class holds data on which edges of a sector border ano
         }
 
         // Get the connections of one tile [L,R,U,D]
-        public bool[] getConnections(Vector2Int pos)
+        public bool[] GetConnections(Vector2Int pos)
         {
             int x = pos.x;
             int y = pos.y;
             bool[] connections = new bool[4];
             // Left
-            connections[0] = (x - 1 >= 0 && typeMap[x, y] == typeMap[x - 1, y]) ? true : false;
+            connections[0] = x - 1 >= 0 && typeMap[x, y] == typeMap[x - 1, y];
             // Right
-            connections[1] = (x + 1 < typeMap.GetLength(0) && typeMap[x, y] == typeMap[x + 1, y]) ? true : false;
+            connections[1] = x + 1 < typeMap.GetLength(0) && typeMap[x, y] == typeMap[x + 1, y];
             // Up
-            connections[2] = (y + 1 < typeMap.GetLength(1) && typeMap[x, y] == typeMap[x, y + 1]) ? true : false;
+            connections[2] = y + 1 < typeMap.GetLength(1) && typeMap[x, y] == typeMap[x, y + 1];
             // Down
-            connections[3] = (y - 1 >= 0 && typeMap[x, y] == typeMap[x, y - 1]) ? true : false;
+            connections[3] = y - 1 >= 0 && typeMap[x, y] == typeMap[x, y - 1];
 
             return connections;
-        }        
-        public bool[] getConnections(Vector2Int pos, List<Vector2Int> tilesToCheck) // For connecting to any tile within a list
+        }
+        public bool[] GetConnections(Vector2Int pos, List<Vector2Int> tilesToCheck) // For connecting to any tile within a list
         {
-            int x = pos.x;
-            int y = pos.y;
             bool[] connections = new bool[4];
             for (int i = 0; i < cardinalOffsets.Length; i++)
             {
@@ -114,44 +111,44 @@ public class Area // This class holds data on which edges of a sector border ano
 
             return connections;
         }
-        public bool[] getConnections(Vector2Int pos, tileType validConnectionType) // For connecting a different tile type
+        public bool[] GetConnections(Vector2Int pos, tileType validConnectionType) // For connecting a different tile type
         {
             int x = pos.x;
             int y = pos.y;
             bool[] connections = new bool[4];
             // Left
-            connections[0] = (x - 1 >= 0 && validConnectionType == typeMap[x - 1, y]) ? true : false;
+            connections[0] = x - 1 >= 0 && validConnectionType == typeMap[x - 1, y];
             // Right
-            connections[1] = (x + 1 < typeMap.GetLength(0) && validConnectionType == typeMap[x + 1, y]) ? true : false;
+            connections[1] = x + 1 < typeMap.GetLength(0) && validConnectionType == typeMap[x + 1, y];
             // Up
-            connections[2] = (y + 1 < typeMap.GetLength(1) && validConnectionType == typeMap[x, y + 1]) ? true : false;
+            connections[2] = y + 1 < typeMap.GetLength(1) && validConnectionType == typeMap[x, y + 1];
             // Down
-            connections[3] = (y - 1 >= 0 && validConnectionType == typeMap[x, y - 1]) ? true : false;
+            connections[3] = y - 1 >= 0 && validConnectionType == typeMap[x, y - 1];
 
             return connections;
         }
-        public bool[] getConnections(Vector2Int pos, List<tileType> validConnectionTypes) // For connecting several tile types
+        public bool[] GetConnections(Vector2Int pos, List<tileType> validConnectionTypes) // For connecting several tile types
         {
             int x = pos.x;
             int y = pos.y;
             bool[] connections = new bool[4];
             // Left
-            connections[0] = (x - 1 >= 0 && validConnectionTypes.Contains(typeMap[x - 1, y])) ? true : false;
+            connections[0] = x - 1 >= 0 && validConnectionTypes.Contains(typeMap[x - 1, y]);
             // Right
-            connections[1] = (x + 1 < typeMap.GetLength(0) && validConnectionTypes.Contains(typeMap[x + 1, y])) ? true : false;
+            connections[1] = x + 1 < typeMap.GetLength(0) && validConnectionTypes.Contains(typeMap[x + 1, y]);
             // Up
-            connections[2] = (y + 1 < typeMap.GetLength(1) && validConnectionTypes.Contains(typeMap[x, y + 1])) ? true : false;
+            connections[2] = y + 1 < typeMap.GetLength(1) && validConnectionTypes.Contains(typeMap[x, y + 1]);
             // Down
-            connections[3] = (y - 1 >= 0 && validConnectionTypes.Contains(typeMap[x, y - 1])) ? true : false;
+            connections[3] = y - 1 >= 0 && validConnectionTypes.Contains(typeMap[x, y - 1]);
 
             return connections;
         }
 
-        public tileType[,] getNeighbouringTiles(Vector2Int pos)
+        public tileType[,] GetNeighbouringTiles(Vector2Int pos)
         {
             int x = pos.x;
             int y = pos.y;
-            tileType[,] connections = new tileType[3,3];
+            tileType[,] connections = new tileType[3, 3];
 
             connections[0, 0] = x - 1 >= 0 && y - 1 >= 0
                 ? typeMap[x - 1, y - 1] : tileType.invalid;
@@ -177,7 +174,7 @@ public class Area // This class holds data on which edges of a sector border ano
         }
 
         //reset the type and connection maps
-        public void reset()
+        public void Reset()
         {
             for (int x = 0; x < typeMap.GetLength(0); x++)
             {
@@ -234,7 +231,7 @@ public class Area // This class holds data on which edges of a sector border ano
         }
     }
 
-    private static Vector2Int[] cardinalOffsets = new Vector2Int[] // {L,R,U,D}
+    private readonly static Vector2Int[] cardinalOffsets = new Vector2Int[] // {L,R,U,D}
     {
         new Vector2Int(-1, 0),
         new Vector2Int( 1, 0),
@@ -243,7 +240,6 @@ public class Area // This class holds data on which edges of a sector border ano
     };
 
     private Vector2Int size;
-    private List<Vector2Int> area;
 
 
     // Output
@@ -258,7 +254,7 @@ public class Area // This class holds data on which edges of a sector border ano
     public Area(int seed, int attempts, Vector2Int offset, Vector2Int size, Type parameters)
     {
         // Initialize Values
-        Random.InitState((int) (seed * (offset.x + .5f) * (offset.y + .5f)));
+        Random.InitState((int)(seed * (offset.x + .5f) * (offset.y + .5f)));
 
         this.size = size;
         this.parameters = parameters;
@@ -266,55 +262,54 @@ public class Area // This class holds data on which edges of a sector border ano
         sectors = new List<List<Vector2Int>>();
         tileMap = new TileGroup(size);
 
-        generateArea(attempts);
+        GenerateArea(attempts);
     }
 
     public Area(int seed, int attempts, Vector2Int offset, List<Vector2Int> area, Type parameters) //Invalid tiling support
-    { 
+    {
         // Initialize Values
         Random.InitState((int)(seed * (offset.x + .5f) * (offset.y + .5f)));
 
-        (Vector2Int, Vector2Int) bounds = getRect(area);
+        (Vector2Int, Vector2Int) bounds = GetRect(area);
         for (int i = 0; i < area.Count; i++) // set lowest coords to 0.
         {
             area[i] -= bounds.Item1;
         }
         size = new Vector2Int(bounds.Item2.x - bounds.Item1.x + 1, bounds.Item2.y - bounds.Item1.y + 1);
-        this.area = area;
         this.parameters = parameters;
         this.offset = offset;
         sectors = new List<List<Vector2Int>>();
         tileMap = new TileGroup(area, size);
 
-        generateArea(attempts);
+        GenerateArea(attempts);
     }
 
-    public void generateArea(int attempts)
+    public void GenerateArea(int attempts)
     {
         // Generate Bounds
-        if (!regenerateErrors(generateBounds, attempts))
-        { boundsFallBack(); }
-        //Debug.Log("Bounds:\n" + printType());
+        if (!RegenerateErrors(GenerateBounds, attempts))
+        { BoundsFallBack(); }
+        //Debug.Log("Bounds:\n" + PrintType());
 
         // Generate Partitions
-        bool partitionSuccess = regenerateErrors(generatePartition, attempts, parameters.sectorCount -1);
-        //Debug.Log("Partitions:\n" + printType());
+        bool partitionSuccess = RegenerateErrors(GeneratePartition, attempts, parameters.sectorCount - 1);
+        //Debug.Log("Partitions:\n" + PrintType());
 
         // Generate Sections
-        generateSectors();
-        //Debug.Log("Sectors:\n" + printSectors());
+        GenerateSectors();
+        //Debug.Log("Sectors:\n" + PrintSectors());
 
-        generatePrimaryConnections(parameters.primaryConnectionCount);
+        GeneratePrimaryConnections(parameters.primaryConnectionCount);
         if (parameters.secondaryConnectionCount > 0 && sectors.Count > 0)
-        { generateSecondaryConnections(parameters.secondaryConnectionCount); }
-        //Debug.Log("Connections:\n" + printType());
+        { GenerateSecondaryConnections(parameters.secondaryConnectionCount); }
+        //Debug.Log("Connections:\n" + PrintType());
 
-        Debug.Log("Final:\n" + printType());
+        Debug.Log("Final:\n" + PrintType());
     }
 
 
     // Regenerators
-    public bool regenerateErrors(System.Func<bool> method, int retryCount) // No param
+    public bool RegenerateErrors(System.Func<bool> method, int retryCount) // No param
     {
         bool success;
         int fails = 0;
@@ -331,7 +326,7 @@ public class Area // This class holds data on which edges of a sector border ano
         return success;
     }
 
-    public bool regenerateErrors<T>(System.Func<T, bool> method, int retryCount, T param) // No param
+    public bool RegenerateErrors<T>(System.Func<T, bool> method, int retryCount, T param) // No param
     {
         bool success;
         int fails = 0;
@@ -350,10 +345,10 @@ public class Area // This class holds data on which edges of a sector border ano
 
 
     // Bounds Generation
-    private bool generateBounds()
+    private bool GenerateBounds()
     {
-        tileMap.reset();
-        List<Vector2Int> validtileMap = tileMap.getListOfType(tileType.exterior);
+        tileMap.Reset();
+        List<Vector2Int> validtileMap = tileMap.GetListOfType(tileType.exterior);
         List<Vector2Int> points = new List<Vector2Int>();
         OrderClockwise order = new OrderClockwise(size / 2);
 
@@ -410,28 +405,28 @@ public class Area // This class holds data on which edges of a sector border ano
         for (int i = 0; i < points.Count; i++)
         {
             int next = (i + 1) % (points.Count);
-            (bool result, List<Vector2Int> borderTiles) = getLPoints(points[i], points[next], tileMap.getListOfType(tileType.border));
+            (bool result, List<Vector2Int> borderTiles) = GetLPoints(points[i], points[next], tileMap.GetListOfType(tileType.border));
             if (result)
             {
                 foreach (Vector2Int tile in borderTiles)
-                { tileMap.setTile(tile, tileType.border); }
+                { tileMap.SetTile(tile, tileType.border); }
             }
             else
             {
-                //Debug.Log("Bounds Attempt:\n" + printType());
+                //Debug.Log("Bounds Attempt:\n" + PrintType());
                 return (false);
             }
         }
 
         // Roughly fill interior
-        foreach (Vector2Int tile in tileMap.getListOfType(tileType.border))
+        foreach (Vector2Int tile in tileMap.GetListOfType(tileType.border))
         {
             Vector2Int scanTile = tile + cardinalOffsets[1];
-            
+
             while (scanTile.x < tileMap.typeMap.GetLength(0) && tileMap.typeMap[scanTile.x, scanTile.y] != tileType.border)
             {
                 if (tileMap.typeMap[scanTile.x, scanTile.y] == tileType.exterior)
-                { tileMap.setTile(scanTile, tileType.interior); }
+                { tileMap.SetTile(scanTile, tileType.interior); }
                 scanTile += cardinalOffsets[1];
             }
         }
@@ -442,31 +437,31 @@ public class Area // This class holds data on which edges of a sector border ano
         {
             if (tileMap.typeMap[x, 0] == tileType.interior)
             {
-                tileMap.setTile(x, 0, tileType.exterior);
+                tileMap.SetTile(x, 0, tileType.exterior);
             }
             if (tileMap.typeMap[x, tileMap.typeMap.GetLength(1) - 1] == tileType.interior)
             {
-                tileMap.setTile(x, tileMap.typeMap.GetLength(1) - 1, tileType.exterior);
+                tileMap.SetTile(x, tileMap.typeMap.GetLength(1) - 1, tileType.exterior);
             }
         }
         for (int y = 0; y < tileMap.typeMap.GetLength(1); y++)
         {
             if (tileMap.typeMap[0, y] == tileType.interior)
             {
-                tileMap.setTile(0, y, tileType.exterior);
+                tileMap.SetTile(0, y, tileType.exterior);
             }
             if (tileMap.typeMap[tileMap.typeMap.GetLength(0) - 1, y] == tileType.interior)
             {
-                tileMap.setTile(tileMap.typeMap.GetLength(0) - 1, y, tileType.exterior);
+                tileMap.SetTile(tileMap.typeMap.GetLength(0) - 1, y, tileType.exterior);
             }
         }
 
-        List<Vector2Int> borderingExterior = tileMap.getListOfType(tileType.interior).Where(tile => tileMap.getConnections(tile, tileType.exterior).Contains(true)).ToList(); // Get tiles bordering missed interior tiles
+        List<Vector2Int> borderingExterior = tileMap.GetListOfType(tileType.interior).Where(tile => tileMap.GetConnections(tile, tileType.exterior).Contains(true)).ToList(); // Get tiles bordering missed interior tiles
 
         while (borderingExterior.Count > 0)
         {
             Vector2Int tile = borderingExterior[0];
-            bool[] connections = tileMap.getConnections(tile, tileType.interior);
+            bool[] connections = tileMap.GetConnections(tile, tileType.interior);
             List<int> directions = connections.Select((b, i) => b == true ? i : -1).Where(i => i != -1).ToList();
 
             while (directions.Count > 0)
@@ -476,42 +471,42 @@ public class Area // This class holds data on which edges of a sector border ano
                 directions.RemoveAt(0);
             }
 
-            tileMap.setTile(tile, tileType.exterior);
+            tileMap.SetTile(tile, tileType.exterior);
             borderingExterior.RemoveAt(0);
         }
 
 
         // Remove 0 Width Corridors
-        foreach (Vector2Int tile in tileMap.getListOfType(tileType.border))
+        foreach (Vector2Int tile in tileMap.GetListOfType(tileType.border))
         {
             bool hasInterior = false;
-            foreach (tileType type in tileMap.getNeighbouringTiles(tile))
+            foreach (tileType type in tileMap.GetNeighbouringTiles(tile))
             {
                 hasInterior |= type == tileType.interior;
             }
             if (!hasInterior)
             {
-                tileMap.setTile(tile, tileType.exterior);
+                tileMap.SetTile(tile, tileType.exterior);
             }
         }
 
         return true;
     }
 
-    private void boundsFallBack()
+    private void BoundsFallBack()
     {
         //Reset map
-        List<Vector2Int> failedTiles = tileMap.getListOfType(new List<tileType>() { tileType.border, tileType.interior });
+        List<Vector2Int> failedTiles = tileMap.GetListOfType(new List<tileType>() { tileType.border, tileType.interior });
         foreach (Vector2Int tile in failedTiles)
-        { tileMap.setTile(tile, tileType.exterior); }
-        Debug.Log("Starting Fallback.\n" + printType());
+        { tileMap.SetTile(tile, tileType.exterior); }
+        Debug.Log("Starting Fallback.\n" + PrintType());
 
         //Get all exterior tiles that border non-exterior tiles
-        List<Vector2Int> outerTiles = tileMap.getListOfType(tileType.exterior).Where(tile => tileMap.getConnections(tile, tileType.exterior).Contains(false)).ToList();
+        List<Vector2Int> outerTiles = tileMap.GetListOfType(tileType.exterior).Where(tile => tileMap.GetConnections(tile, tileType.exterior).Contains(false)).ToList();
 
         //Set tiles to border
         foreach (Vector2Int tile in outerTiles)
-        { tileMap.setTile(tile, tileType.border); }
+        { tileMap.SetTile(tile, tileType.border); }
 
         //Add corner tiles
         List<bool[]> cornerPattern = new List<bool[]>
@@ -526,10 +521,10 @@ public class Area // This class holds data on which edges of a sector border ano
 
         foreach (Vector2Int tile in outerTiles)
         {
-            bool[] exterior = tileMap.getConnections(tile, tileType.border);
+            bool[] exterior = tileMap.GetConnections(tile, tileType.border);
             if (exterior.Where(item => item).ToArray().Length == 1)
             {
-                bool[] both = tileMap.getConnections(tile, new List<tileType>() { tileType.border, tileType.invalid });
+                bool[] both = tileMap.GetConnections(tile, new List<tileType>() { tileType.border, tileType.invalid });
 
                 bool match = false;
                 foreach (bool[] pattern in cornerPattern)
@@ -554,17 +549,16 @@ public class Area // This class holds data on which edges of a sector border ano
 
         //Set tiles to border
         foreach (Vector2Int tile in cornerTiles)
-        { tileMap.setTile(tile, tileType.border); }
+        { tileMap.SetTile(tile, tileType.border); }
 
         //Get all remaining exterior tiles and set them to interior
-        foreach (Vector2Int tile in tileMap.getListOfType(tileType.exterior))
-        { tileMap.setTile(tile, tileType.interior); }
+        foreach (Vector2Int tile in tileMap.GetListOfType(tileType.exterior))
+        { tileMap.SetTile(tile, tileType.interior); }
     }
 
-    private (bool, List<Vector2Int>) getLPoints(Vector2Int a, Vector2Int c, List<Vector2Int> markedPoints)
+    private (bool, List<Vector2Int>) GetLPoints(Vector2Int a, Vector2Int c, List<Vector2Int> markedPoints)
     {
-        List<Vector2Int> newBorder = new List<Vector2Int>();
-        List<Vector2Int> newInterior = new List<Vector2Int>();
+        List<Vector2Int> newPoints = new List<Vector2Int>();
         Vector2Int minMaxX = a.x < c.x ?
             new Vector2Int(a.x, c.x) :
             new Vector2Int(c.x, a.x);
@@ -577,33 +571,33 @@ public class Area // This class holds data on which edges of a sector border ano
         {
             int y = a.y;
             Vector2Int tile = new Vector2Int(x, y);
-            if (tileMap.typeMap[x, y] == tileType.invalid || markedPoints.Contains(tile)) { return (false, newBorder); }
+            if (tileMap.typeMap[x, y] == tileType.invalid || markedPoints.Contains(tile)) { return (false, newPoints); }
 
-            newBorder.Add(tile);
+            newPoints.Add(tile);
         }
 
         for (int y = minMaxY.x + 1; y < minMaxY.y; y++)
         {
             int x = c.x;
             Vector2Int tile = new Vector2Int(x, y);
-            if (tileMap.typeMap[x, y] == tileType.invalid || markedPoints.Contains(tile)) { return (false, newBorder); }
+            if (tileMap.typeMap[x, y] == tileType.invalid || markedPoints.Contains(tile)) { return (false, newPoints); }
 
-            newBorder.Add(tile);
+            newPoints.Add(tile);
         }
 
-        return (true, newBorder);
+        return (true, newPoints);
     }
 
 
     // Section Generation
-    private bool generatePartition(int count)
+    private bool GeneratePartition(int count)
     {
-        List<Vector2Int> oldPartitions = tileMap.getListOfType(tileType.partition);
+        List<Vector2Int> oldPartitions = tileMap.GetListOfType(tileType.partition);
         foreach (Vector2Int tile in oldPartitions)
-        { tileMap.setTile(tile, tileType.interior); }
+        { tileMap.SetTile(tile, tileType.interior); }
 
         List<List<Vector2Int>> partitions = new List<List<Vector2Int>>();
-        List<Vector2Int> validPartitiontiles = tileMap.getListOfType(tileType.border);
+        List<Vector2Int> validPartitiontiles = tileMap.GetListOfType(tileType.border);
         while (partitions.Count < count && validPartitiontiles.Count > 0)
         {
             List<Vector2Int> newTiles = new List<Vector2Int>();
@@ -616,8 +610,8 @@ public class Area // This class holds data on which edges of a sector border ano
                 //Select a border or partition tile
                 Vector2Int startPoint = validPartitiontiles[Random.Range(0, validPartitiontiles.Count)];
                 //Generate valid directions [L,R,U,D]
-                bool[] connections = tileMap.getConnections(startPoint, tileType.interior);
-                bool[] pendingCardinalTiles = tileMap.getConnections(startPoint, validPartitiontiles);
+                bool[] connections = tileMap.GetConnections(startPoint, tileType.interior);
+                bool[] pendingCardinalTiles = tileMap.GetConnections(startPoint, validPartitiontiles);
                 for (int i = 0; i < connections.Length; i++)
                 {
                     connections[i] = connections[i] & !pendingCardinalTiles[i];
@@ -726,18 +720,18 @@ public class Area // This class holds data on which edges of a sector border ano
         foreach (List<Vector2Int> tileList in partitions)
         {
             foreach (Vector2Int tile in tileList)
-            { tileMap.setTile(tile, tileType.partition); }
+            { tileMap.SetTile(tile, tileType.partition); }
         }
         if (partitions.Count == count)
         { return true; }
         else
-        { 
+        {
             //Debug.Log("Partitons failed: only " + partitions.Count + " generated."); 
             return false;
         }
     }
 
-    private void generateSectors()
+    private void GenerateSectors()
     {
         /*
          * Generates sections
@@ -748,19 +742,19 @@ public class Area // This class holds data on which edges of a sector border ano
          * removes the empty priming stack
          */
         // Create list of unassigned sector tileMap
-        List<Vector2Int> tileList = tileMap.getListOfType(tileType.interior);
+        List<Vector2Int> tileList = tileMap.GetListOfType(tileType.interior);
         sectors.Add(tileList);
 
         int index = 1;
         while (sectors[0].Count > 0)
         {
-            sectorCrawler(sectors[0][0], index);
+            SectorCrawler(sectors[0][0], index);
             index++;
         }
         sectors.RemoveAt(0);
     }
 
-    private void sectorCrawler(Vector2Int position, int id) // Assign any cardinally connected tileMap to the same sector, then repeats the check on neighbours
+    private void SectorCrawler(Vector2Int position, int id) // Assign any cardinally connected tileMap to the same sector, then repeats the check on neighbours
     {
         //for each cardinally connected tile
         foreach (Vector2Int offset in cardinalOffsets)
@@ -778,22 +772,22 @@ public class Area // This class holds data on which edges of a sector border ano
                 else { sectors.Add(new List<Vector2Int> { tile }); }
 
                 //view the tile's neighbours
-                sectorCrawler(tile, id);
+                SectorCrawler(tile, id);
             }
         }
     }
 
-    private void generatePrimaryConnections(int quota)
+    private void GeneratePrimaryConnections(int quota)
     {
         // Generate primary connections in border wall
         int connections = 0;
-        List<Vector2Int> borders = tileMap.getListOfType(tileType.border);
+        List<Vector2Int> borders = tileMap.GetListOfType(tileType.border);
         while (connections < quota && borders.Count > 0)
         {
             Vector2Int tile = borders[Random.Range(0, borders.Count)];
             borders.Remove(tile);
-            bool[] connectionExterior = tileMap.getConnections(tile, new List<tileType>() { tileType.exterior, tileType.invalid });
-            bool[] connectionInterior = tileMap.getConnections(tile, tileType.interior);
+            bool[] connectionExterior = tileMap.GetConnections(tile, new List<tileType>() { tileType.exterior, tileType.invalid });
+            bool[] connectionInterior = tileMap.GetConnections(tile, tileType.interior);
             bool isXEdge = tile.x == 0 || tile.x == tileMap.typeMap.GetLength(0);
             bool isYEdge = tile.y == 0 || tile.y == tileMap.typeMap.GetLength(1);
             if (connectionExterior.Contains(true) && connectionInterior.Contains(true))
@@ -803,22 +797,22 @@ public class Area // This class holds data on which edges of a sector border ano
                 int sectorIndex = sectors.FindIndex(sector => sector.Contains(tile + cardinalOffsets[direction]));
 
                 // Set connection
-                tileMap.setTile(tile, tileType.connection);
+                tileMap.SetTile(tile, tileType.connection);
                 connections++;
             }
-            else if (!tileMap.getConnections(tile, tileType.invalid).Contains(true) && (isXEdge && !isYEdge || isYEdge && !isXEdge))
+            else if (!tileMap.GetConnections(tile, tileType.invalid).Contains(true) && (isXEdge && !isYEdge || isYEdge && !isXEdge))
             {
                 // Set connection
-                tileMap.setTile(tile, tileType.connection);
+                tileMap.SetTile(tile, tileType.connection);
                 connections++;
             }
         }
     }
 
-    private void generateSecondaryConnections(int max)
+    private void GenerateSecondaryConnections(int max)
     {
         // Get valid partitions for each sector
-        List<Vector2Int> interior = tileMap.getListOfType(tileType.interior);
+        List<Vector2Int> interior = tileMap.GetListOfType(tileType.interior);
         List<(int, List<Vector2Int>, Vector2Int)> sectorPartitions = new List<(int, List<Vector2Int>, Vector2Int)>(); //List of sectors, each sector has a list of points and a connection counter + max
         for (int a = 0; a < sectors.Count; a++)
         {
@@ -830,7 +824,7 @@ public class Area // This class holds data on which edges of a sector border ano
             // Get directions of partition tileMap
             foreach (Vector2Int tile in sectortileMap)
             {
-                List<int> tileConnections = tileMap.getConnections(tile, tileType.partition) // Get the directions bordering partitions
+                List<int> tileConnections = tileMap.GetConnections(tile, tileType.partition) // Get the directions bordering partitions
                     .Select((direction, i) => direction == true ? i : -1).Where(i => i != -1).ToList(); // get the direction indexes as a list
                 edgetileMap.Add((tile, tileConnections));
             }
@@ -843,7 +837,7 @@ public class Area // This class holds data on which edges of a sector border ano
             }
 
             // Remove tiles that only touch one sector
-            partitiontileMap.RemoveAll(tile => tileMap.getConnections(tile).Where(connection => connection).Count() >= 2);
+            partitiontileMap.RemoveAll(tile => tileMap.GetConnections(tile).Where(connection => connection).Count() >= 2);
 
             // Get the number of partitions for the tile
             Vector2Int connections = new Vector2Int(0, Random.Range(1, Mathf.Clamp(max + 1, 1, partitiontileMap.Count)));
@@ -874,7 +868,7 @@ public class Area // This class holds data on which edges of a sector border ano
                 List<int> overlappingSectorIndexes = sectorPartitions.Select((sector, i) => sector.Item2.Contains(tile) ? i : -1).Where(i => i != -1).ToList();
 
                 // Set that tile
-                tileMap.setTile(tile, tileType.connection);
+                tileMap.SetTile(tile, tileType.connection);
 
                 // Update partition data
                 foreach (int index in overlappingSectorIndexes)
@@ -898,7 +892,7 @@ public class Area // This class holds data on which edges of a sector border ano
         }
     }
 
-    public static (Vector2Int, Vector2Int) getRect(List<Vector2Int> pointList)
+    public static (Vector2Int, Vector2Int) GetRect(List<Vector2Int> pointList)
     {
         Vector2Int min = new Vector2Int(int.MaxValue, int.MaxValue);
         Vector2Int max = new Vector2Int(int.MinValue, int.MinValue);
@@ -916,7 +910,7 @@ public class Area // This class holds data on which edges of a sector border ano
 
 
     // Value Generation
-    public Vector2Int getSectorOffset(int i)
+    public Vector2Int GetSectorOffset(int i)
     {
         if (i < sectors.Count)
         {
@@ -926,7 +920,8 @@ public class Area // This class holds data on which edges of a sector border ano
                 if (tile.x < offset.x) //Get left most tile
                 {
                     offset = tile;
-                } else if (tile.x == offset.x && tile.y < offset.y) //Get top most tile in range of leftmost tile
+                }
+                else if (tile.x == offset.x && tile.y < offset.y) //Get top most tile in range of leftmost tile
                 {
                     offset = tile;
                 }
@@ -938,7 +933,7 @@ public class Area // This class holds data on which edges of a sector border ano
     }
 
     // Debugging
-    private string printType()
+    private string PrintType()
     {
         string typeMap = "";
         for (int y = tileMap.typeMap.GetLength(1) - 1; y >= 0; y--)
@@ -973,7 +968,7 @@ public class Area // This class holds data on which edges of a sector border ano
         return typeMap;
     }
 
-    public string printSectors()
+    public string PrintSectors()
     {
         string sectorReferenceList = "□ABCDEFGHJKLN0PQRSTXYZ"; // Removed some letters, as unity's debugger doesn't equally space them.
         string sectorMap = "";
@@ -993,7 +988,7 @@ public class Area // This class holds data on which edges of a sector border ano
         {
             foreach (var tile in sectors[i])
             {
-                compiledSectors[tile.x, tile.y] = i+1;
+                compiledSectors[tile.x, tile.y] = i + 1;
             }
         }
 

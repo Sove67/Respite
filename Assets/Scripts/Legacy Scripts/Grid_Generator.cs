@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
 public class Grid_Generator : MonoBehaviour
 {
@@ -107,9 +104,9 @@ public class Grid_Generator : MonoBehaviour
                 // 2 3
                 // 0 1
 
-                sectorGrid[x, y].vertexPosition[0] = (new Vector2(xMod,                     yMod));
+                sectorGrid[x, y].vertexPosition[0] = (new Vector2(xMod, yMod));
                 sectorGrid[x, y].vertexPosition[1] = (new Vector2(xMod + sectionSideLength, yMod));
-                sectorGrid[x, y].vertexPosition[2] = (new Vector2(xMod,                     yMod + sectionSideLength));
+                sectorGrid[x, y].vertexPosition[2] = (new Vector2(xMod, yMod + sectionSideLength));
                 sectorGrid[x, y].vertexPosition[3] = (new Vector2(xMod + sectionSideLength, yMod + sectionSideLength));
 
             }

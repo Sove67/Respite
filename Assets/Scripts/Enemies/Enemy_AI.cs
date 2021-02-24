@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
@@ -9,10 +8,10 @@ public class Enemy_AI : MonoBehaviour
     // Variables
     // Boid Logic
     public Enemy_Settings settings;
-    private List<GameObject> swarm = new List<GameObject>();
+    private readonly List<GameObject> swarm = new List<GameObject>();
 
     // Pathfinding Logic
-    private List<GameObject> targets = new List<GameObject>();
+    private readonly List<GameObject> targets = new List<GameObject>();
 
     // Self
     private Rigidbody body;
@@ -32,11 +31,11 @@ public class Enemy_AI : MonoBehaviour
 
     private void Update()
     {
-        
+
         if (!(targets.Count > 0)) // If there are no targets, wander.
         {
             agent.enabled = false;
-            Boid_Control(); 
+            Boid_Control();
         }
         else // Otherwise, pathfind to the priority target
         {
@@ -160,8 +159,7 @@ public class Enemy_AI : MonoBehaviour
         {
             Vector3 direction = Quaternion.Euler(0, angle, 0) * body.velocity.normalized;
 
-            RaycastHit hit;
-            if (Physics.SphereCast(transform.position, settings.avoidancePathWidth, direction, out hit, settings.awarenessRadius - settings.avoidancePathWidth, layerMask))
+            if (Physics.SphereCast(transform.position, settings.avoidancePathWidth, direction, out RaycastHit hit, settings.awarenessRadius - settings.avoidancePathWidth, layerMask))
             {
                 Debug.DrawLine(transform.position, hit.point, Color.red, .1f);
                 // For each failed ray, add an avoidance force based on distance between origin and ray end
@@ -176,11 +174,12 @@ public class Enemy_AI : MonoBehaviour
     }
 
     // Calculation Helpers
-    private Vector3 LimitVector3(Vector3 baseVector, float min, float max) {
+    private Vector3 LimitVector3(Vector3 baseVector, float min, float max)
+    {
         float sqrMagnitude = baseVector.sqrMagnitude;
 
         if (sqrMagnitude == 0) // No Direction - Generate a new direction
-        { return Quaternion.Euler(0, Random.Range(0, 360), 0) * Vector3.forward * min;  }
+        { return Quaternion.Euler(0, Random.Range(0, 360), 0) * Vector3.forward * min; }
 
         else if (sqrMagnitude < min * min) // Too Small - Increase the speed of current direction
         { return baseVector.normalized * min; }
@@ -222,7 +221,7 @@ public class Enemy_AI : MonoBehaviour
 
         // Assign the highest priority found as the target, null otherwise
         GameObject target = null;
-        if (lure != null) { target = lure; } 
+        if (lure != null) { target = lure; }
         else if (player != null) { target = player; }
         else if (core != null) { target = core; }
         else if (defense != null) { target = defense; }
