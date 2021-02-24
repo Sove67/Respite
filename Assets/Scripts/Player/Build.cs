@@ -15,6 +15,7 @@ public class Build : MonoBehaviour
     public Radial_Control radialMenu;
 
     [Header("Buildings")]
+    public float buildHeight;
     public List<GameObject> buildingListLeft;
     public List<GameObject> buildingListRight;
     public List<GameObject> buildingListUp;
@@ -90,6 +91,7 @@ public class Build : MonoBehaviour
             }
             yield return new WaitForSeconds(0.01f);
         }
+        position.y = buildHeight;
         Instantiate(@object, position, rotation, objectParent.transform);
         Debug.Log("Placed " + @object);
         cursorPoint.SetActive(false);
@@ -103,19 +105,17 @@ public class Build : MonoBehaviour
         StartCoroutine(radialMenu.AwaitInput(buildingList.Count));
         yield return new WaitUntil(() => radialMenu.active != null && Input.GetMouseButton(0));
         radialMenu.Trigger();
-        yield return new WaitUntil(() => !radialMenu.running);
-        int category = radialMenu.active.id;
+        int category = radialMenu.active ?? default;
+        yield return new WaitUntil(() => !radialMenu.running && !Input.GetMouseButton(0));
 
         //choose an object from the radial menu
-        yield return new WaitUntil(() => !Input.GetMouseButton(0));
         StartCoroutine(radialMenu.AwaitInput(buildingList[category].Count));
-        yield return new WaitUntil(() => Input.GetMouseButton(0));
+        yield return new WaitUntil(() => radialMenu.active != null && Input.GetMouseButton(0));
         radialMenu.Trigger();
-        yield return new WaitUntil(() => !radialMenu.running);
-        int @object = radialMenu.active.id;
+        int @object = radialMenu.active ?? default;
+        yield return new WaitUntil(() => !radialMenu.running && !Input.GetMouseButton(0));
 
         //place the object
-        yield return new WaitUntil(() => !Input.GetMouseButton(0));
         StartCoroutine(Place(buildingList[category][@object]));
         yield break;
     }

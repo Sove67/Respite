@@ -71,7 +71,7 @@ public class World : MonoBehaviour
                 tileParent.transform.position = new Vector3(tile.x * world.settings.tileSize, 0, tile.y * world.settings.tileSize) + town.transform.position;
                 Area.tileType[] solidTiles = new Area.tileType[] { Area.tileType.border, Area.tileType.connection };
                 Area.tileType[,] neighbouringTiles = area.tileMap.GetNeighbouringTiles(tile);
-                Debug.Log(tile);
+
                 InstantiateTile(neighbouringTiles, world.settings.tilesetWallExterior, solidTiles, new Area.tileType[] { Area.tileType.exterior, Area.tileType.partition, Area.tileType.invalid }, tileParent);
                 InstantiateTile(neighbouringTiles, world.settings.tilesetWallInterior, solidTiles, new Area.tileType[] { Area.tileType.interior, Area.tileType.partition, Area.tileType.invalid }, tileParent);
             }
