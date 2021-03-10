@@ -59,6 +59,7 @@ public class Enemy_AI : MonoBehaviour
 
     public void ShareTargetWithSwarm(GameObject target)
     {
+        Debug.Log(name + " is sharing it's target with " + swarm.Count + " swarm mates.");
         foreach (GameObject boid in swarm)
         {
             boid.GetComponent<Enemy_AI>().AddTarget(target, false);
@@ -67,8 +68,15 @@ public class Enemy_AI : MonoBehaviour
 
     public void AddTarget(GameObject target, bool primarySource)
     {
-        Debug.Log("Targeting: " + target.name);
-        targets.Add((target, primarySource));
+        int index = targets.FindIndex(item => item.Item1 == target);
+        if (index != -1) // Update existing target
+        {
+            bool currentSource = targets[index].Item2;
+            targets[index] = (target, currentSource || primarySource);
+        } else // Add new target
+        {
+            targets.Add((target, primarySource));
+        }
     }
 
     public void PurgeSwarm(GameObject target) // Remove the target from this boid's swarm
@@ -76,9 +84,20 @@ public class Enemy_AI : MonoBehaviour
         swarm.Remove(target);
     }
 
-    public void PurgeTarget(GameObject target) // Remove the target from this boid's targets
+    public void PurgeTarget(GameObject target, bool isInitiator) // Remove the target from this boid's targets & it's swarmmates if it is the initiator. Do nothing if it is a primary target and not the initiator.
     {
-        targets.RemoveAll(items => items.Item1 == target);
+        (GameObject, bool) listing = targets.Find(items => items.Item1 == target);
+        if (listing.Item2 && isInitiator) // Is the primary contact & called the removal
+        {
+            targets.Remove(listing);
+            foreach (GameObject boid in swarm)
+            {
+                boid.GetComponent<Enemy_AI>().PurgeTarget(target, false);
+            }
+        } else if (!listing.Item2 && !isInitiator) // Is the secondary contact & did not call the removal
+        {
+            targets.Remove(listing);
+        }
     }
 
     // Entity Awareness Assignment
@@ -108,7 +127,7 @@ public class Enemy_AI : MonoBehaviour
         else if (collider.CompareTag("Defense") || collider.CompareTag("Player"))
         {
             StartCoroutine(Pursue());
-            PurgeTarget(collider.gameObject);
+            PurgeTarget(collider.gameObject, true);
         }
     }
 
@@ -192,9 +211,8 @@ public class Enemy_AI : MonoBehaviour
     {
         body.velocity = agent.desiredVelocity;
         lingerForce = agent.desiredVelocity * settings.lingerWeight;
-        Debug.Log("Beginning linger of " + lingerForce);
+
         yield return new WaitForSeconds(settings.lingerTime);
-        Debug.Log("Ending linger");
 
         lingerForce = Vector3.zero;
     }

@@ -19,8 +19,6 @@ public class Spawn : MonoBehaviour
         {
             timer = 0;
 
-            Debug.Log("Timer Elapsed.");
-
             int i = 0;
             children.Clear();
             foreach (Transform child in transform)
@@ -34,23 +32,20 @@ public class Spawn : MonoBehaviour
                 else
                 { children.Add(child); }
             }
-            Debug.Log("Destroyed " + i + " Children.");
-            Debug.Log("Found " + children.Count + " Children.");
 
             // Spawning
             if (children.Count < settings.popMin)
             {
-                Debug.Log("Spawning.");
                 // if pop below min, run the spawn script until max is reached.
                 SpawnGroup(children.Count);
             }
         }
     }
 
-    public void SpawnGroup(int count)
+    public void SpawnGroup(int popSize)
     {
         //while pop count is less than max
-        while (count < settings.popMax)
+        while (popSize < settings.popMax)
         {
             // Generate a randomized radius between the max & min
             float radius = Random.Range(settings.radiusMin, settings.radiusMax + 1);
@@ -69,8 +64,8 @@ public class Spawn : MonoBehaviour
             for (int i = 0; i < packSize; i++)
             {
                 Vector3 offset = new Vector3(Random.value, 0, Random.value);
-                Instantiate(boid, position + offset, new Quaternion(), transform);
-                count++;
+                Instantiate(boid, position + offset, new Quaternion(), transform).name = "Boid " + popSize;
+                popSize++;
             }
         }
     }
