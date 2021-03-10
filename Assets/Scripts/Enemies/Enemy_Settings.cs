@@ -15,8 +15,7 @@ public class Enemy_Settings : ScriptableObject
     public float packCount = 3;
 
     // Boid
-    public float maxSpeed = 5;
-    public float minSpeed = 1;
+    public float speed = 3.5f;
     public float maxSteerForce = 3;
     public float minSteerForce = .5f;
 
@@ -24,13 +23,12 @@ public class Enemy_Settings : ScriptableObject
     public float cohesionWeight = 1;
     public float seperationWeight = 2;
     public float avoidanceWeight = 1;
+    public float lingerWeight = 2;
+
+    public float lingerTime = 2;
 
     public float separationRadius = 20;
     public int avoidanceLayer = 8;
     public int avoidanceStepMagnitude = 20;
     public float avoidancePathWidth = .5f;
-
-    // Targeting
-    public float traceTime = 5;
-    public GameObject trace;
 }

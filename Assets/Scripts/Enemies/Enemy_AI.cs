@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,14 +12,15 @@ public class Enemy_AI : MonoBehaviour
     private readonly List<GameObject> swarm = new List<GameObject>();
 
     // Pathfinding Logic
-    private readonly List<GameObject> targets = new List<GameObject>();
+    private readonly List<(GameObject, bool)> targets = new List<(GameObject, bool)>();
 
     // Self
     private Rigidbody body;
     private SphereCollider awareness;
     private NavMeshAgent agent;
 
-
+    // Linger Targeting
+    private Vector3 lingerForce;
 
     // Functions
     private void Start()
@@ -27,11 +29,11 @@ public class Enemy_AI : MonoBehaviour
         awareness = GetComponentInChildren<SphereCollider>();
         awareness.radius = settings.awarenessRadius;
         agent = GetComponent<NavMeshAgent>();
+        lingerForce = Vector3.zero;
     }
 
     private void Update()
     {
-
         if (!(targets.Count > 0)) // If there are no targets, wander.
         {
             agent.enabled = false;
@@ -55,6 +57,20 @@ public class Enemy_AI : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public void ShareTargetWithSwarm(GameObject target)
+    {
+        foreach (GameObject boid in swarm)
+        {
+            boid.GetComponent<Enemy_AI>().AddTarget(target, false);
+        }
+    }
+
+    public void AddTarget(GameObject target, bool primarySource)
+    {
+        Debug.Log("Targeting: " + target.name);
+        targets.Add((target, primarySource));
+    }
+
     public void PurgeSwarm(GameObject target) // Remove the target from this boid's swarm
     {
         swarm.Remove(target);
@@ -62,7 +78,7 @@ public class Enemy_AI : MonoBehaviour
 
     public void PurgeTarget(GameObject target) // Remove the target from this boid's targets
     {
-        targets.Remove(target);
+        targets.RemoveAll(items => items.Item1 == target);
     }
 
     // Entity Awareness Assignment
@@ -73,8 +89,11 @@ public class Enemy_AI : MonoBehaviour
         { swarm.Add(collider.gameObject); }
 
         // Target Assignment
-        else if (collider.CompareTag("Defense") || collider.CompareTag("Player") || collider.CompareTag("Lure"))
-        { targets.Add(collider.gameObject); }
+        else if (collider.CompareTag("Defense") || collider.CompareTag("Player"))
+        { 
+            AddTarget(collider.gameObject, true); 
+            ShareTargetWithSwarm(collider.gameObject); 
+        }
     }
 
     private void OnTriggerExit(Collider collider)
@@ -86,13 +105,9 @@ public class Enemy_AI : MonoBehaviour
         }
 
         // Target Removal
-        else if (collider.CompareTag("Defense"))
+        else if (collider.CompareTag("Defense") || collider.CompareTag("Player"))
         {
-            PurgeTarget(collider.gameObject);
-        }
-        else if (collider.CompareTag("Player") || collider.CompareTag("Lure"))
-        {
-            targets.Add(Instantiate(settings.trace, collider.transform.position, Quaternion.identity, transform));
+            StartCoroutine(Pursue());
             PurgeTarget(collider.gameObject);
         }
     }
@@ -101,11 +116,11 @@ public class Enemy_AI : MonoBehaviour
     public void Boid_Control() // Apply all forces to rigidbody
     {
         IEnumerable<Enemy_AI> boids = swarm.Select(o => o.GetComponent<Enemy_AI>()).ToList();
-        Vector3 desiredForce = Alignment(boids) + Separation(boids) + Cohesion(boids) + Avoidance();
+        Vector3 desiredForce = Alignment(boids) + Separation(boids) + Cohesion(boids) + Avoidance() + lingerForce;
         Vector3 limitedForce = LimitVector3(desiredForce, settings.minSteerForce, settings.maxSteerForce);
         Vector3 inputVelocity = limitedForce.normalized * (limitedForce.magnitude / body.mass) * Time.fixedDeltaTime; // Taken from https://forum.unity.com/threads/calculating-velocity-from-addforce-and-mass.166557/
         Vector3 resultVelocity = body.velocity + inputVelocity;
-        body.velocity = LimitVector3(resultVelocity, settings.minSpeed, settings.maxSpeed);
+        body.velocity = resultVelocity.normalized * settings.speed;
         float angle = Mathf.Atan2(body.velocity.z, body.velocity.x) * Mathf.Rad2Deg;
         body.transform.rotation = Quaternion.Euler(new Vector3(0, angle, 0));
     }
@@ -173,6 +188,17 @@ public class Enemy_AI : MonoBehaviour
         return force * settings.avoidanceWeight;
     }
 
+    private IEnumerator Pursue()
+    {
+        body.velocity = agent.desiredVelocity;
+        lingerForce = agent.desiredVelocity * settings.lingerWeight;
+        Debug.Log("Beginning linger of " + lingerForce);
+        yield return new WaitForSeconds(settings.lingerTime);
+        Debug.Log("Ending linger");
+
+        lingerForce = Vector3.zero;
+    }
+
     // Calculation Helpers
     private Vector3 LimitVector3(Vector3 baseVector, float min, float max)
     {
@@ -201,20 +227,21 @@ public class Enemy_AI : MonoBehaviour
         int index = 0;
         while (lure == null && index < targets.Count) // Find the first occurence of each priority level
         {
-            if (targets[index].CompareTag("Lure"))
-            { lure = targets[index]; }
+            GameObject item = targets[index].Item1;
+            if (item.CompareTag("Lure"))
+            { lure = item; }
 
-            else if (targets[index].CompareTag("Player") && player == null)
-            { player = targets[index]; }
+            else if (item.CompareTag("Player") && player == null)
+            { player = item; }
 
-            else if (targets[index].CompareTag("Base Core") && core == null)
-            { core = targets[index]; }
+            else if (item.CompareTag("Base Core") && core == null)
+            { core = item; }
 
-            else if (targets[index].CompareTag("Defense") && defense == null)
-            { defense = targets[index]; }
+            else if (item.CompareTag("Defense") && defense == null)
+            { defense = item; }
 
-            else if (targets[index].CompareTag("Trace") && trace == null)
-            { trace = targets[index]; }
+            else if (item.CompareTag("Trace") && trace == null)
+            { trace = item; }
 
             index++;
         }

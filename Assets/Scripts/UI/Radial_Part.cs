@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 public class Radial_Part : MonoBehaviour
 {
+    public RectTransform container;
+    public GameObject icon;
+    public int id { get; private set; }
+
     public class OrderClockwise : IComparer<Vector3>
     {
         Vector3 center;
@@ -23,7 +27,9 @@ public class Radial_Part : MonoBehaviour
         }
     }
 
-    public void CreateMesh(float innerRadius, float outerRadius, int partCount, float spacing, int index, Material material)
+    
+
+    public void Create(int id, float innerRadius, float outerRadius, float scale, int partCount, float spacing, int index, Material material, Sprite sprite)
     {
         Mesh mesh = new Mesh();
         List<Vector3> vertecies = new List<Vector3>();
@@ -38,9 +44,11 @@ public class Radial_Part : MonoBehaviour
         vertecies.Add(Quaternion.Euler(0, 0, -(angle * (index + 1) - spacing / 2)) * new Vector3(0, outerRadius, 0));
 
         Vector3 midpoint = Vector3.zero;
-        foreach (Vector3 point in vertecies)
+        for (int i = 0; i < vertecies.Count; i++)
         {
+            Vector3 point = vertecies[i];
             midpoint += point;
+            vertecies[i] = new Vector3(point.x * scale, point.y * scale, point.z);
         }
         midpoint /= vertecies.Count;
 
@@ -59,5 +67,11 @@ public class Radial_Part : MonoBehaviour
         GetComponent<MeshFilter>().mesh = mesh;
         GetComponent<MeshCollider>().sharedMesh = mesh;
         GetComponent<MeshRenderer>().material = material;
+
+        icon.GetComponent<SpriteRenderer>().sprite = sprite;
+
+        float width = outerRadius - innerRadius;
+        container.transform.localScale = new Vector3(width * .75f, width * .75f);
+        container.anchoredPosition = midpoint * 2;
     }
 }
