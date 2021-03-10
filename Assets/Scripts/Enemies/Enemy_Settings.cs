@@ -31,4 +31,7 @@ public class Enemy_Settings : ScriptableObject
     public int avoidanceLayer = 8;
     public int avoidanceStepMagnitude = 20;
     public float avoidancePathWidth = .5f;
+
+    // Trap Interaction
+    public float collisionForceMultiplier = 100;
 }

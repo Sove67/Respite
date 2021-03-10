@@ -20,7 +20,7 @@ public class Enemy_AI : MonoBehaviour
     private NavMeshAgent agent;
 
     // Linger Targeting
-    private Vector3 lingerForce;
+    public Vector3 lingerForce;
 
     // Functions
     private void Start()
@@ -136,11 +136,13 @@ public class Enemy_AI : MonoBehaviour
     {
         IEnumerable<Enemy_AI> boids = swarm.Select(o => o.GetComponent<Enemy_AI>()).ToList();
         Vector3 desiredForce = Alignment(boids) + Separation(boids) + Cohesion(boids) + Avoidance() + lingerForce;
-        Vector3 limitedForce = LimitVector3(desiredForce, settings.minSteerForce, settings.maxSteerForce);
-        Vector3 inputVelocity = limitedForce.normalized * (limitedForce.magnitude / body.mass) * Time.fixedDeltaTime; // Taken from https://forum.unity.com/threads/calculating-velocity-from-addforce-and-mass.166557/
+        Debug.DrawRay(transform.position, lingerForce, Color.white);
+
+        Vector3 inputVelocity = LimitVector3(desiredForce * Time.fixedDeltaTime, settings.minSteerForce, settings.maxSteerForce); // Convert force to velocity
+        Debug.DrawRay(transform.position, inputVelocity, Color.red);
         Vector3 resultVelocity = body.velocity + inputVelocity;
         body.velocity = resultVelocity.normalized * settings.speed;
-        float angle = Mathf.Atan2(body.velocity.z, body.velocity.x) * Mathf.Rad2Deg;
+        float angle = Mathf.Atan2(body.velocity.z, body.velocity.x) * Mathf.Rad2Deg + 90;
         body.transform.rotation = Quaternion.Euler(new Vector3(0, angle, 0));
     }
 
@@ -153,6 +155,7 @@ public class Enemy_AI : MonoBehaviour
         { force += boid.body.velocity; }
         force /= boids.Count();
 
+        Debug.DrawRay(transform.position, force * settings.alignmentWeight, Color.blue);
         return force * settings.alignmentWeight;
     }
 
@@ -166,6 +169,7 @@ public class Enemy_AI : MonoBehaviour
         Vector3 average = sumPositions / boids.Count();
         Vector3 force = average - body.position;
 
+        Debug.DrawRay(transform.position, force * settings.cohesionWeight, Color.green);
         return force * settings.cohesionWeight;
     }
 
@@ -181,6 +185,7 @@ public class Enemy_AI : MonoBehaviour
         }
         force /= boids.Count();
 
+        Debug.DrawRay(transform.position, force * settings.seperationWeight, Color.black);
         return force * settings.seperationWeight;
     }
 
@@ -195,7 +200,6 @@ public class Enemy_AI : MonoBehaviour
 
             if (Physics.SphereCast(transform.position, settings.avoidancePathWidth, direction, out RaycastHit hit, settings.awarenessRadius - settings.avoidancePathWidth, layerMask))
             {
-                Debug.DrawLine(transform.position, hit.point, Color.red, .1f);
                 // For each failed ray, add an avoidance force based on distance between origin and ray end
                 force += body.position - hit.point;
             }
@@ -204,6 +208,7 @@ public class Enemy_AI : MonoBehaviour
         force /= Mathf.Ceil(360 / settings.avoidanceStepMagnitude);
 
         force = force.magnitude > 0 ? force : Vector3.zero;
+        Debug.DrawRay(transform.position, force * settings.avoidanceWeight, Color.cyan);
         return force * settings.avoidanceWeight;
     }
 
@@ -215,6 +220,17 @@ public class Enemy_AI : MonoBehaviour
         yield return new WaitForSeconds(settings.lingerTime);
 
         lingerForce = Vector3.zero;
+    }
+
+    // Trap Interaction
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        Vector3 force = hit.moveDirection * hit.moveLength * settings.collisionForceMultiplier;
+        if (hit.rigidbody != null)
+        {
+            Debug.Log("Adding force: " + force);
+            hit.rigidbody.AddForce(force);
+        }
     }
 
     // Calculation Helpers
