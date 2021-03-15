@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1055929785847175013}
   - component: {fileID: 2696838486022490384}
   m_Layer: 0
-  m_Name: Radial Part
+  m_Name: Radial Part 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -199,7 +199,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 3be9cdf3cea76e34ab9b7098b657428d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 81b4837476753f04bb183075c68ecc96, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

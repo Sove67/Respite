@@ -13,7 +13,9 @@ public class Radial_Control : MonoBehaviour
     
     public Material materialInactive;
     public Material materialActive;
-    public Sprite temp;
+
+    private static int MIN_PART_COUNT = 3;
+    private static int PARTIAL_MENU_COUNT = 2;
     public void Start()
     {
         RectTransform rectTransform = GetComponent<RectTransform>();
@@ -26,20 +28,29 @@ public class Radial_Control : MonoBehaviour
         activePart = null;
         running = true;
         triggered = false;
-        if (partCount < 3)
-        { 
-            Debug.LogError("Radial Menu can't handle less than 3 options.");
-            running = false;
+        if (partCount == PARTIAL_MENU_COUNT)
+        {
+            Debug.Log("Running Partial Radial.");
+            for (int i = 0; i < 3; i+= 2)
+            {
+                    Debug.Log("Created Part " + i);
+                    GameObject newPart = Instantiate(part, transform);
+                    newPart.name = "Radial Part " + i;
+                    newPart.GetComponent<Radial_Part>().Create(10, 50, Screen.height / 200, MIN_PART_COUNT, 5, i, materialInactive, null);
+                    partList.Add(newPart);
+                
+            }
+        } else
+        {
+            for (int i = 0; i < partCount; i++)
+            {
+                GameObject newPart = Instantiate(part, transform);
+                newPart.name = "Radial Part " + i;
+                newPart.GetComponent<Radial_Part>().Create(10, 50, Screen.height / 200, partCount, 5, i, materialInactive, null);
+                partList.Add(newPart);
+            }
         }
 
-        for (int i = 0; i < partCount; i++)
-        {
-            GameObject newPart = Instantiate(part, transform);
-            newPart.name = "Radial Part " + i;
-            newPart.layer = 5;
-            newPart.GetComponent<Radial_Part>().Create(i, 10, 50, Screen.height / 200, partCount, 5, i, materialInactive, temp);
-            partList.Add(newPart);
-        }
         gameObject.SetActive(true);
 
         // wait for a trigger

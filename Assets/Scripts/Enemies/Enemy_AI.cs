@@ -59,7 +59,6 @@ public class Enemy_AI : MonoBehaviour
 
     public void ShareTargetWithSwarm(GameObject target)
     {
-        Debug.Log(name + " is sharing it's target with " + swarm.Count + " swarm mates.");
         foreach (GameObject boid in swarm)
         {
             boid.GetComponent<Enemy_AI>().AddTarget(target, false);

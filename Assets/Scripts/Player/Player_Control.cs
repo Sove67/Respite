@@ -140,7 +140,6 @@ public class Player_Control : MonoBehaviour
         Vector3 force = hit.moveDirection * hit.moveLength * collisionForceMultiplier;
         if (hit.rigidbody != null)
         {
-            Debug.Log("Adding force: " + force);
             hit.rigidbody.AddForce(force);
         }
     }

@@ -12,24 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a71963fdf7b9cc419b56e1440389bfe, type: 3}
   m_Name: Zombie Boid Settings
   m_EditorClassIdentifier: 
-  awarenessRadius: 5
+  awarenessRadius: 10
   spawnTimer: 5
   radiusMin: 30
   radiusMax: 70
   popMin: 30
   popMax: 60
   packCount: 3
-  maxSpeed: 2
-  minSpeed: 1
-  maxSteerForce: 3
-  minSteerForce: 0.5
-  alignmentWeight: 1
-  cohesionWeight: 1
-  seperationWeight: 1.2
-  avoidanceWeight: 2
+  speed: 3.5
+  maxSteerForce: 2
+  minSteerForce: 0
+  alignmentWeight: 0.5
+  cohesionWeight: 0.5
+  seperationWeight: 2
+  avoidanceWeight: 6
+  lingerWeight: 2
+  lingerTime: 5
   separationRadius: 5
   avoidanceLayer: 8
   avoidanceStepMagnitude: 20
   avoidancePathWidth: 0.5
-  traceTime: 5
-  trace: {fileID: 2221259184248325744, guid: 692cff91da266104da9852054af651cb, type: 3}
+  collisionForceMultiplier: 100
