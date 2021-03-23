@@ -17,6 +17,7 @@ public class Player_Control : MonoBehaviour
     public float cameraLookAcceleration;
 
     public Vector2 cameraZoomLimits;
+    public float detailHideHeight;
     public float cameraZoomDuration;
     public float scrollMultiplier;
 
@@ -39,6 +40,7 @@ public class Player_Control : MonoBehaviour
             return Mathf.Clamp(current / max, 0.1f, 1);
         }
     }
+
     private Vector3 oldMouse;
     // Functions
     private void Start()

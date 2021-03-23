@@ -5,10 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Enemy
-  - Lure
-  - Defense
   - Base Core
-  - Trace
+  - Entity
+  - Lure
   layers:
   - Default
   - TransparentFX

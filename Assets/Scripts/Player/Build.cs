@@ -71,7 +71,6 @@ public class Build : MonoBehaviour
         if (running) // If the build menu has not been closed prematurely
         {
             //choose an object from the radial menu
-            Debug.Log(category + " " + buildingList[category].Count);
             StartCoroutine(radialMenu.AwaitInput(buildingList[category].Count));
             yield return new WaitUntil(() => radialMenu.activePart != null && Input.GetMouseButton(0));
             radialMenu.Trigger();

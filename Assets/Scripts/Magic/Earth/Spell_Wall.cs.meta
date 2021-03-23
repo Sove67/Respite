@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 885891ab58151354eba4cdac5a827f99
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - magicClass: {fileID: 21300000, guid: 5f3fa9e299c2aa14c950a82640140789, type: 3}
+  - magicSpell: {fileID: 21300000, guid: 3bf8d1ed10847e146812b66e3436333f, type: 3}
+  - magicArray: {fileID: 21300000, guid: eb949205c50e3bc479bb20488b991583, type: 3}
+  - objectParent: {instanceID: 0}
+  - boulder: {fileID: 1880398904156117562, guid: 2b8af816b4a7558479f9990345f00494,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

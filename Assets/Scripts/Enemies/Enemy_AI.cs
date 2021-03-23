@@ -107,7 +107,7 @@ public class Enemy_AI : MonoBehaviour
         { swarm.Add(collider.gameObject); }
 
         // Target Assignment
-        else if (collider.CompareTag("Defense") || collider.CompareTag("Player"))
+        else if (collider.CompareTag("Player"))
         { 
             AddTarget(collider.gameObject, true); 
             ShareTargetWithSwarm(collider.gameObject); 
@@ -123,7 +123,7 @@ public class Enemy_AI : MonoBehaviour
         }
 
         // Target Removal
-        else if (collider.CompareTag("Defense") || collider.CompareTag("Player"))
+        else if (collider.CompareTag("Player"))
         {
             StartCoroutine(Pursue());
             PurgeTarget(collider.gameObject, true);
@@ -254,8 +254,6 @@ public class Enemy_AI : MonoBehaviour
         GameObject lure = null;
         GameObject player = null;
         GameObject core = null;
-        GameObject defense = null;
-        GameObject trace = null;
 
         int index = 0;
         while (lure == null && index < targets.Count) // Find the first occurence of each priority level
@@ -270,12 +268,6 @@ public class Enemy_AI : MonoBehaviour
             else if (item.CompareTag("Base Core") && core == null)
             { core = item; }
 
-            else if (item.CompareTag("Defense") && defense == null)
-            { defense = item; }
-
-            else if (item.CompareTag("Trace") && trace == null)
-            { trace = item; }
-
             index++;
         }
 
@@ -284,8 +276,6 @@ public class Enemy_AI : MonoBehaviour
         if (lure != null) { target = lure; }
         else if (player != null) { target = player; }
         else if (core != null) { target = core; }
-        else if (defense != null) { target = defense; }
-        else if (trace != null) { target = trace; }
 
         return target;
     }

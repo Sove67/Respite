@@ -29,12 +29,12 @@ public class Radial_Part : MonoBehaviour
 
     
 
-    public void Create(float innerRadius, float outerRadius, float scale, int partCount, float spacing, int index, Material material, Sprite sprite)
+    public void Create(int id, float innerRadius, float outerRadius, float scale, int partCount, float spacing, int index, Material material, Sprite sprite)
     {
         Mesh mesh = new Mesh();
         List<Vector3> vertecies = new List<Vector3>();
         List<int> triangles = new List<int>();
-        id = index;
+        this.id = id;
         float angle = 360 / partCount;
         
         // Assign the vertecies for that mark

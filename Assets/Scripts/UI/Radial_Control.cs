@@ -30,23 +30,22 @@ public class Radial_Control : MonoBehaviour
         triggered = false;
         if (partCount == PARTIAL_MENU_COUNT)
         {
-            Debug.Log("Running Partial Radial.");
-            for (int i = 0; i < 3; i+= 2)
-            {
-                    Debug.Log("Created Part " + i);
-                    GameObject newPart = Instantiate(part, transform);
-                    newPart.name = "Radial Part " + i;
-                    newPart.GetComponent<Radial_Part>().Create(10, 50, Screen.height / 200, MIN_PART_COUNT, 5, i, materialInactive, null);
-                    partList.Add(newPart);
-                
-            }
+            GameObject newPart = Instantiate(part, transform);
+            newPart.name = "Radial Part 1";
+            newPart.GetComponent<Radial_Part>().Create(0, 10, 50, Screen.height / 200, MIN_PART_COUNT, 5, 0, materialInactive, null);
+            partList.Add(newPart);
+
+            newPart = Instantiate(part, transform);
+            newPart.name = "Radial Part 1";
+            newPart.GetComponent<Radial_Part>().Create(1, 10, 50, Screen.height / 200, MIN_PART_COUNT, 5, 2, materialInactive, null);
+            partList.Add(newPart);
         } else
         {
             for (int i = 0; i < partCount; i++)
             {
                 GameObject newPart = Instantiate(part, transform);
                 newPart.name = "Radial Part " + i;
-                newPart.GetComponent<Radial_Part>().Create(10, 50, Screen.height / 200, partCount, 5, i, materialInactive, null);
+                newPart.GetComponent<Radial_Part>().Create(i, 10, 50, Screen.height / 200, partCount, 5, i, materialInactive, null);
                 partList.Add(newPart);
             }
         }
@@ -71,12 +70,12 @@ public class Radial_Control : MonoBehaviour
                     activePart.GetComponent<MeshRenderer>().material = materialActive;
                 }
             }
-            yield return new WaitForSeconds(0.01f);
+            yield return null;
         }
         if (running)
         {
             activePart.GetComponent<MeshRenderer>().material = materialInactive;
-            yield return new WaitForSeconds(0.1f);
+            yield return null;
             running = false;
         }
 
