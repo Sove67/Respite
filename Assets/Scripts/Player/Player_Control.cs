@@ -1,14 +1,16 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Player_Control : MonoBehaviour
 {
     // Variables
     [Header("Components")]
-    public CharacterController controller;
-    public GameObject offsetPart;
-    public GameObject model;
-    public Camera playerCamera;
+    private CharacterController controller;
+    private GameObject offsetPart;
+    private Source chanellingPart;
+    private Camera playerCamera;
 
     [Header("Control")]
     public float moveMultiplier;
@@ -17,9 +19,20 @@ public class Player_Control : MonoBehaviour
     public float cameraLookAcceleration;
 
     public Vector2 cameraZoomLimits;
-    public float detailHideHeight;
+    public float detailThreshold;
     public float cameraZoomDuration;
     public float scrollMultiplier;
+
+    public float heightConstraint;
+    public Vector3 resetHeight 
+    { 
+        get
+        {
+            Vector3 current = transform.position;
+            current.y = heightConstraint;
+            return current;
+        } 
+    }
 
     [Header("Interactions")]
     public float collisionForceMultiplier;
@@ -27,40 +40,40 @@ public class Player_Control : MonoBehaviour
     [Header("Scripts")]
     public Build buildScript;
 
+    // Calculations
     private const int lookOffset = 90;
     private float cameraLookSpeed;
-    private float zoomTarget;
-    private IEnumerator zoomSmooth;
-    private float zoomDependantOffsetMultiplier
-    {
-        get
+    public float zoomTarget { get; private set; }
+    public float zoomLevel { get
         {
-            float current = zoomTarget - cameraZoomLimits.x;
-            float max = cameraZoomLimits.y - cameraZoomLimits.x;
-            return Mathf.Clamp(current / max, 0.1f, 1);
-        }
+            float range = cameraZoomLimits.y - cameraZoomLimits.x;
+            float target = playerCamera.transform.position.y - cameraZoomLimits.x;
+            return target / range;
+        } 
     }
+    private IEnumerator zoomSmooth;
 
     private Vector3 oldMouse;
+
     // Functions
     private void Start()
     {
+        controller = GetComponent<CharacterController>();
+        offsetPart = transform.Find("Offset Part").gameObject;
+        chanellingPart = transform.Find("Chanelling Part").GetComponent<Source>();
+        playerCamera = Camera.main;
         zoomTarget = playerCamera.transform.position.y;
     }
 
     private void Update()
     {
         Move();
-        Interact();
+        Look();
+        Zoom();
 
-        if (Input.mousePosition != oldMouse)
+        if (transform.position.y != heightConstraint)
         {
-            oldMouse = Input.mousePosition;
-            Look();
-        }
-        if (Input.mouseScrollDelta.y != 0)
-        {
-            Zoom(-Input.mouseScrollDelta.y * scrollMultiplier);
+            transform.position = resetHeight;
         }
         if (Input.GetKeyDown("q"))
         {
@@ -69,6 +82,10 @@ public class Player_Control : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             buildScript.Trigger();
+        }
+        if (Input.GetKeyDown("e"))
+        {
+            StartCoroutine(Use());
         }
     }
 
@@ -80,40 +97,61 @@ public class Player_Control : MonoBehaviour
         // Calculate FOV shadows
     }
 
-    public void Look() // Find the angle between the cursor and the middle of the screen, and apply it to the offset part. Also offset the camera based on mouse position
+    public void Look() // Offset the camera based on mouse position, and rotate the character model.
     {
+        // Get mouse input
+        oldMouse = Input.mousePosition;
         Vector2 mouse = Input.mousePosition;
         Vector2 middle = new Vector2(Screen.width, Screen.height) / 2;
-        Vector2 offset = mouse - middle;
+        Vector2 cameraOffset = mouse - middle;
 
-        Transform camera = playerCamera.transform;
-        Vector3 cameraTarget = new Vector3(
-            offset.x * (offsetMultiplier * zoomDependantOffsetMultiplier),
-            playerCamera.transform.localPosition.y,
-            offset.y * (offsetMultiplier * zoomDependantOffsetMultiplier));
-        Vector3 cameraStep = Vector3.MoveTowards(camera.localPosition, cameraTarget, cameraLookSpeed);
+        // Find camera movement
+        float zoomMultiplier = Mathf.Clamp(zoomLevel, 0.1f, 1);
+        Vector2 cameraTarget = new Vector3(
+            cameraOffset.x * offsetMultiplier * zoomMultiplier,
+            cameraOffset.y * offsetMultiplier * zoomMultiplier
+            );
+        Vector2 position2D = new Vector2(playerCamera.transform.localPosition.x, playerCamera.transform.localPosition.z);
+        Vector2 positionOffset = position2D - cameraTarget;
 
-        cameraLookSpeed = Mathf.Clamp(cameraLookSpeed + cameraLookAcceleration, cameraLookSpeedLimits.x, cameraLookSpeedLimits.y);
-        camera.localPosition = cameraStep;
-        if (cameraStep == cameraTarget)
+        if (positionOffset.magnitude == 0) // If at position, reset speed.
         { cameraLookSpeed = cameraLookSpeedLimits.x; }
+        else // Apply movement
+        {
+            Vector2 positionStep = -positionOffset.normalized * Mathf.Clamp(cameraLookSpeed, 0, positionOffset.magnitude);
+            
+            cameraLookSpeed = Mathf.Clamp(cameraLookSpeed + cameraLookAcceleration, cameraLookSpeedLimits.x, cameraLookSpeedLimits.y);
+            playerCamera.transform.Translate(positionStep);
+        }
 
-        float angle = -1 * (Mathf.Atan2(offset.y, offset.x) * Mathf.Rad2Deg + lookOffset);
+        // Rotate Model
+        float angle = -1 * (Mathf.Atan2(cameraOffset.y, cameraOffset.x) * Mathf.Rad2Deg + lookOffset);
         offsetPart.transform.rotation = Quaternion.Euler(0, angle, 0);
     }
 
-    public void Zoom(float delta)
+    public void Zoom() // Control camera height with the scroll wheel
     {
-        Transform camera = playerCamera.transform;
-        zoomTarget = Mathf.Clamp(zoomTarget + delta, cameraZoomLimits.x, cameraZoomLimits.y);
+        if (Input.mouseScrollDelta.y != 0)
+        {
+            float delta = -Input.mouseScrollDelta.y * scrollMultiplier;
+            Transform camera = playerCamera.transform;
+            zoomTarget = Mathf.Clamp(zoomTarget + delta, cameraZoomLimits.x, cameraZoomLimits.y);
 
-        if (zoomSmooth != null)
-        { StopCoroutine(zoomSmooth); }
-        zoomSmooth = ZoomTowards(camera, cameraZoomDuration);
-        StartCoroutine(zoomSmooth);
+            if (zoomSmooth != null)
+            { StopCoroutine(zoomSmooth); }
+            zoomSmooth = ZoomTowards(camera, cameraZoomDuration);
+            StartCoroutine(zoomSmooth);
+        }
+    }
+    
+    public IEnumerator Use()
+    {
+        chanellingPart.arrayList.ForEach(item => item.inputs++);
+        yield return new WaitUntil(() => Input.GetKeyUp("e"));
+        chanellingPart.arrayList.ForEach(item => item.inputs--);
     }
 
-    public IEnumerator ZoomTowards(Transform camera, float duration)
+    public IEnumerator ZoomTowards(Transform camera, float duration) // Smooth changes in the camera's height
     {
         float time = 0;
         while (camera.localPosition.y != zoomTarget)
@@ -127,56 +165,12 @@ public class Player_Control : MonoBehaviour
         }
     }
 
-    public void Interact()
-    {
-        /* Check if interact item within range
-         * choose closest item
-         * display label
-         * Check if interact key is pressed
-         * trigger item
-         */
-    }
-
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         Vector3 force = hit.moveDirection * hit.moveLength * collisionForceMultiplier;
         if (hit.rigidbody != null)
         {
             hit.rigidbody.AddForce(force);
-        }
-    }
-
-    public RaycastHit? getMouseSphereCast()
-    {
-        float rayOffset = 1.05f;
-        Vector3 mouseOffset = new Vector3((Screen.width - Screen.width * rayOffset) / 2, (Screen.height - Screen.height * rayOffset) / 2);
-        Vector3 mouse = (Input.mousePosition * rayOffset) + mouseOffset;
-        Ray ray = playerCamera.ScreenPointToRay(mouse);
-
-        if (Physics.SphereCast(ray, 1, out RaycastHit hitInfo))
-        {
-            return hitInfo;
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    public RaycastHit? getMouseRaycast()
-    {
-        float rayOffset = 1.05f;
-        Vector3 mouseOffset = new Vector3((Screen.width - Screen.width * rayOffset) / 2, (Screen.height - Screen.height * rayOffset) / 2);
-        Vector3 mouse = (Input.mousePosition * rayOffset) + mouseOffset;
-        Ray ray = playerCamera.ScreenPointToRay(mouse);
-
-        if (Physics.Raycast(ray, out RaycastHit hitInfo))
-        {
-            return hitInfo;
-        }
-        else
-        {
-            return null;
         }
     }
 }

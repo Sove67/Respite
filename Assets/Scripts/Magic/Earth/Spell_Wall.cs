@@ -9,17 +9,14 @@ public class Spell_Wall : Spell_Methods, Spell_Interface
 
     public void Destroy() // Destroy the array
     {
+        StopAllCoroutines();
+        Destroy(instantiation);
         Destroy(gameObject);
     }
 
     public void End() // Make wall phasable
     {
         instantiation.GetComponent<Collider>().enabled = false;
-    }
-
-    public void Sustain() // Make wall solid
-    {
-        instantiation.GetComponent<Collider>().enabled = true;
     }
 
     public void Trigger() // Create a wall if none has been made
@@ -33,7 +30,8 @@ public class Spell_Wall : Spell_Methods, Spell_Interface
             instantiation = Instantiate(wallPrefab, constrainedPosition + offset, transform.rotation, objectParent);
 
 
-            instantiation.GetComponent<Entity>().onDestruction = () => { StartCoroutine(PulseOutput()); instantiation = null; };
+            instantiation.GetComponent<Entity>().onDestruction = () => { Output(); instantiation = null; };
         }
+        instantiation.GetComponent<Collider>().enabled = true;
     }
 }

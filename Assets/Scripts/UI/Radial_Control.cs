@@ -23,29 +23,39 @@ public class Radial_Control : MonoBehaviour
         rectTransform.sizeDelta = sizeDelta;
     }
 
-    public IEnumerator AwaitInput(int partCount)
+    public IEnumerator AwaitInput(List<Sprite> sprites, List<Color> colours)
     {
         activePart = null;
         running = true;
         triggered = false;
-        if (partCount == PARTIAL_MENU_COUNT)
+
+        if (sprites.Count > colours.Count) // Prep colours for all sprites from first colour if less than required supplied
+        {
+            int toPrep = sprites.Count - colours.Count;
+            for (int i = 0; i <= toPrep; i++)
+            {
+                colours.Add(colours[0]);
+            }
+        }
+
+        if (sprites.Count == PARTIAL_MENU_COUNT)
         {
             GameObject newPart = Instantiate(part, transform);
             newPart.name = "Radial Part 1";
-            newPart.GetComponent<Radial_Part>().Create(0, 10, 50, Screen.height / 200, MIN_PART_COUNT, 5, 0, materialInactive, null);
+            newPart.GetComponent<Radial_Part>().Create(0, 10, 50, Screen.height / 200, MIN_PART_COUNT, 5, 0, materialInactive, sprites[0], colours[0]);
             partList.Add(newPart);
 
             newPart = Instantiate(part, transform);
             newPart.name = "Radial Part 1";
-            newPart.GetComponent<Radial_Part>().Create(1, 10, 50, Screen.height / 200, MIN_PART_COUNT, 5, 2, materialInactive, null);
+            newPart.GetComponent<Radial_Part>().Create(1, 10, 50, Screen.height / 200, MIN_PART_COUNT, 5, 2, materialInactive, sprites[1], colours[1]);
             partList.Add(newPart);
         } else
         {
-            for (int i = 0; i < partCount; i++)
+            for (int i = 0; i < sprites.Count; i++)
             {
                 GameObject newPart = Instantiate(part, transform);
                 newPart.name = "Radial Part " + i;
-                newPart.GetComponent<Radial_Part>().Create(i, 10, 50, Screen.height / 200, partCount, 5, i, materialInactive, null);
+                newPart.GetComponent<Radial_Part>().Create(i, 10, 50, Screen.height / 200, sprites.Count, 5, i, materialInactive, sprites[i], colours[i]);
                 partList.Add(newPart);
             }
         }

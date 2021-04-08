@@ -5,6 +5,7 @@ public class Enemy_Settings : ScriptableObject
 {
     // General
     public float awarenessRadius = 5;
+    public float damage = .5f;
 
     // Spawner
     public int spawnTimer = 20;

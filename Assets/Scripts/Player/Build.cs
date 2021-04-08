@@ -1,27 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Build : MonoBehaviour
 {
     [Header("UI")]
     public Radial_Control radialMenu;
-    public Place place;
+    private Place place;
 
     [Header("Buildings")]
-    public List<GameObject> buildingListLeft;
-    public List<GameObject> buildingListRight;
-    public List<GameObject> buildingListUp;
-    public List<GameObject> buildingListDown;
-    private List<List<GameObject>> buildingList = new List<List<GameObject>>();
+    public Spell_Settings settings;
+    public int logicIndex;
 
     private bool running;
+
     public void Start()
     {
-        buildingList.Add(buildingListLeft);
-        buildingList.Add(buildingListRight);
-        buildingList.Add(buildingListUp);
-        buildingList.Add(buildingListDown);
+        place = GetComponent<Place>();
     }
 
     public void ToggleState()
@@ -50,41 +46,56 @@ public class Build : MonoBehaviour
     { 
         if (radialMenu.running)
         { radialMenu.Trigger(); }
-        else if (place.running)
+        else if (place.running && place.valid)
         { 
             place.Trigger();
             running = false;
         }
     }
 
-
     private IEnumerator Routine()
     {
         radialMenu.SetCenterToMouse();
         //Choose a category from the radial menu
-        StartCoroutine(radialMenu.AwaitInput(buildingList.Count));
+        StartCoroutine(radialMenu.AwaitInput(settings.classRunes, settings.classColours));
         yield return new WaitUntil(() => radialMenu.activePart != null && Input.GetMouseButton(0));
         radialMenu.Trigger();
-        int category = radialMenu.activePart.id;
-        yield return new WaitUntil(() => !radialMenu.running && !radialMenu.triggered);
+        int classIndex = radialMenu.activePart.id;
+        yield return new WaitUntil(() => !radialMenu.running && !radialMenu.triggered && !Input.GetMouseButton(0));
 
-        if (running) // If the build menu has not been closed prematurely
+        List<GameObject> categorySpells = new List<GameObject>();
+        categorySpells = settings.spellList.Where(item => item.GetComponent<Spell_Methods>().classIndex == classIndex).ToList();
+
+        List<Sprite> categoryRunes = new List<Sprite>();
+        categorySpells.ForEach(item => categoryRunes.Add(item.GetComponent<Spell_Methods>().spellSprite));
+        if (categorySpells.Count == 0)
+        {
+            Debug.LogWarning("Chosen category has no spells.");
+            yield break;
+        } 
+        else if (categorySpells.Count == 1 && running)
+        {
+            Debug.LogWarning("Chosen category has one spell. No secondary radial needs to be created.");
+            StartCoroutine(place.Routine(categorySpells[0], classIndex == logicIndex));
+            yield break;
+        }
+        else if (running) // If the build menu has not been closed prematurely
         {
             //choose an object from the radial menu
-            StartCoroutine(radialMenu.AwaitInput(buildingList[category].Count));
+            StartCoroutine(radialMenu.AwaitInput(categoryRunes, new List<Color>() { settings.classColours[classIndex] }));
             yield return new WaitUntil(() => radialMenu.activePart != null && Input.GetMouseButton(0));
             radialMenu.Trigger();
-            int @object = radialMenu.activePart.id;
-            yield return new WaitUntil(() => !radialMenu.running && !radialMenu.triggered);
+            int spellIndex = radialMenu.activePart.id;
+            yield return new WaitUntil(() => !radialMenu.running && !radialMenu.triggered && !Input.GetMouseButton(0));
             
 
             if (running) // If the build menu has not been closed prematurely
             {
-                //place the object
-                StartCoroutine(place.Routine(buildingList[category][@object]));
+                // place the object
+                
+                StartCoroutine(place.Routine(categorySpells[spellIndex], classIndex == logicIndex));
                 yield break;
             }
         }
-
     }
 }

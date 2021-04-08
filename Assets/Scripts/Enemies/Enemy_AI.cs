@@ -41,8 +41,9 @@ public class Enemy_AI : MonoBehaviour
         }
         else // Otherwise, pathfind to the priority target
         {
-            agent.enabled = true;
+            ValidateTargets();
             agent.SetDestination(PriorityTarget().transform.position);
+            agent.enabled = true;
         }
     }
 
@@ -107,7 +108,7 @@ public class Enemy_AI : MonoBehaviour
         { swarm.Add(collider.gameObject); }
 
         // Target Assignment
-        else if (collider.CompareTag("Player"))
+        else if (collider.CompareTag("Player") || collider.CompareTag("Base Core"))
         { 
             AddTarget(collider.gameObject, true); 
             ShareTargetWithSwarm(collider.gameObject); 
@@ -123,7 +124,7 @@ public class Enemy_AI : MonoBehaviour
         }
 
         // Target Removal
-        else if (collider.CompareTag("Player"))
+        else if (collider.CompareTag("Player") || collider.CompareTag("Base Core"))
         {
             StartCoroutine(Pursue());
             PurgeTarget(collider.gameObject, true);
@@ -222,13 +223,25 @@ public class Enemy_AI : MonoBehaviour
     }
 
     // Trap Interaction
-    private void OnControllerColliderHit(ControllerColliderHit hit)
+    private void OnCollisionStay(Collision collision)
     {
-        Vector3 force = hit.moveDirection * hit.moveLength * settings.collisionForceMultiplier;
-        if (hit.rigidbody != null)
+        // Force
+        Vector3 force;
+        if (agent.enabled)
+        { force = agent.desiredVelocity.normalized * settings.collisionForceMultiplier; }
+        else
+        { force = body.velocity.normalized * settings.collisionForceMultiplier; }
+
+        if (collision.rigidbody != null)
         {
-            Debug.Log("Adding force: " + force);
-            hit.rigidbody.AddForce(force);
+            collision.rigidbody.AddForce(force);
+        }
+
+        // Damage
+        Entity entity = collision.gameObject.GetComponent<Entity>();
+        if (entity != null)
+        {
+            entity.ModifyHealth(-settings.damage);
         }
     }
 
@@ -262,11 +275,12 @@ public class Enemy_AI : MonoBehaviour
             if (item.CompareTag("Lure"))
             { lure = item; }
 
+            else if (item.CompareTag("Base Core") && core == null)
+            { core = item; }
+
             else if (item.CompareTag("Player") && player == null)
             { player = item; }
 
-            else if (item.CompareTag("Base Core") && core == null)
-            { core = item; }
 
             index++;
         }
@@ -274,9 +288,21 @@ public class Enemy_AI : MonoBehaviour
         // Assign the highest priority found as the target, null otherwise
         GameObject target = null;
         if (lure != null) { target = lure; }
-        else if (player != null) { target = player; }
         else if (core != null) { target = core; }
+        else if (player != null) { target = player; }
 
         return target;
+    }
+
+    private void ValidateTargets()
+    {
+        for (int i = 0; i < targets.Count; i++)
+        {
+            if (targets[i].Item1 == null)
+            {
+                targets.RemoveAt(i);
+                i--;
+            }
+        }
     }
 }

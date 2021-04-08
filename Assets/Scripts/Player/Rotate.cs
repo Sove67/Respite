@@ -7,29 +7,37 @@ public class Rotate : MonoBehaviour
     public bool running { get; private set; }
     public bool triggered { get; private set; }
     public float? rotation { get; private set; }
+    public float rotationOffset;
+    private Place place;
 
-    public IEnumerator Routine(GameObject cursor, Vector3 initialCursor)
+    public void Start()
+    {
+        place = GetComponent<Place>();
+    }
+    public IEnumerator Routine()
     {
         running = true;
-        float angle = 0;
         rotation = null;
         while (!(triggered || !running))
         {
-                Vector3 difference = Input.mousePosition - initialCursor;
-                angle = (Mathf.Atan2(difference.x, difference.y) + (2 * Mathf.PI)) % (2 * Mathf.PI) * Mathf.Rad2Deg;
-                
-                cursor.transform.rotation = Quaternion.Euler(0, angle, 0);
-
+            transform.rotation = GetAngle(transform.position);
             yield return null;
         }
         if (running)
         {
-            rotation = angle;
+            rotation = transform.rotation.eulerAngles.y;
             running = false;
         }
 
         triggered = false;
         yield break;
+    }
+
+    public Quaternion GetAngle(Vector3 center)
+    {
+        Vector3 difference = center - place.CustomMouseRaycast();
+        float angle = ((Mathf.Atan2(difference.x, difference.z) + (2 * Mathf.PI)) % (2 * Mathf.PI) * Mathf.Rad2Deg) + rotationOffset;
+        return Quaternion.Euler(0, angle, 0);
     }
 
     public void Trigger()

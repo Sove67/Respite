@@ -17,108 +17,100 @@ public class Spell_Methods : MonoBehaviour
      * -Modifies physics, limits & parenting (Water Spells)
      */
 
+    public Spell_Settings settings;
+
     // Visuals
-    public Sprite @classSprite;
     public Sprite spellSprite;
-    public Color classColour;
-    public GameObject array;
-    private GameObject canvas;
+    private Transform sprite;
+    private Player_Control playerControl;
+    private SpriteRenderer dot;
+    private SpriteRenderer colouring;
+    private GameObject classRune;
+    private float hue;
 
     // Parameters
+    [Range(0, 4)]
     public int classIndex;
-    public float interval;
-    public float duration;
+
+    public float interval; // Time between sustain calls
+    public float duration; // Time taken to apply effect
+
     public Transform objectParent { get; private set; }
 
     // Spell Logic
-    public bool inputPower;
-    private bool wasInputPower;
-    public bool hasOutput;
-    public bool output { get; private set; }
-    public float outputPulseDuration;
-    private Spell_Interface spellLogic;
-    private bool inRangeOfPlayer;
-    private List<Spell_Methods> links = new List<Spell_Methods>();
-    
+    public int inputs;
 
+    public bool hasOutput;
+    public List<Spell_Interface> outputTargets { get; set; } = new List<Spell_Interface>();
+
+    public Spell_Interface spellLogic;
+    public int sources {
+        get { return privateSources; }
+        
+        set
+        {
+            // If the boolean hasSource has changed, call the visualizer function.
+            bool hasSource = value > 0;
+            if (hasSource != privateSources > 0)
+            { SourceVisuals(hasSource); }
+
+            privateSources = value;
+        }
+    }
+    private int privateSources;
+    public bool overrideSourcesForTesting;
+    public Vector3 snapPoint { get { return transform.position; } }
+    public IEnumerator activate;
+
+    // Logic Spells Support
+    public Spell_Methods end { get; set; }
 
     public void Start()
     {
-        // Set runes;
-        Transform sprite = Instantiate(array, transform).transform;
-        sprite.GetComponent<SpriteRenderer>().color = classColour;
-        sprite.GetComponentInChildren<Light>().color = classColour;
+        // Assign visuals
+        sprite = Instantiate(settings.arrayPrefab, transform).transform;
 
-        SpriteRenderer[] parts = sprite.GetComponentsInChildren<SpriteRenderer>();
-        foreach (SpriteRenderer renderer in parts)
-        {
-            renderer.color = classColour;
-        }
+        // Assign Objects
+        objectParent = GameObject.Find("Objects").transform;
+        playerControl = GameObject.Find("Player").GetComponent<Player_Control>();
+        dot = sprite.Find("Dot").GetComponent<SpriteRenderer>();
+        colouring = sprite.Find("Rune Colouring").GetComponent<SpriteRenderer>();
+        classRune = sprite.Find("Class").gameObject;
+        spellLogic = GetComponent<Spell_Interface>();
+        activate = Activate();
 
-        sprite.Find("Class").GetComponent<SpriteMask>().sprite = @classSprite;
-        for (int i = 1; i <= 3; i++)
-        { sprite.Find("Spell " + i).GetComponent<SpriteMask>().sprite = spellSprite; }
+        // Set colours;
+        Color.RGBToHSV(settings.classColours[classIndex], out hue, out _, out _); // Parse out hue
+        sprite.GetComponentInChildren<Light>().color = settings.classColours[classIndex]; // Colour light
+        SourceVisuals(false); // Colour runes
 
-        sprite.Find("Output Node").gameObject.SetActive(hasOutput);
-
-        canvas = sprite.Find("Canvas").gameObject;
-        canvas.transform.localRotation = Quaternion.Euler(0, 0, transform.localRotation.eulerAngles.y + 180);
-
-        // Assign variables
-        try
-        {
-            objectParent = GameObject.Find("Objects").transform;
-            spellLogic = GetComponent<Spell_Interface>();
-        } catch (System.Exception e)
-        {
-            Debug.LogError("Spell Method initialzation failed.\n" + e);
-        }
+        // Set Runes
+        classRune.GetComponent<SpriteMask>().sprite = settings.classRunes[classIndex];
+        sprite.Find("Spell").GetComponent<SpriteMask>().sprite = spellSprite;
     }
 
     public void Update() 
     {
-        InputPowerHandling();
-    }
+        Mathf.Clamp(sources, 0, int.MaxValue);
 
-    public void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("Player"))
-        { inRangeOfPlayer = true; }
-    }
+        if ((sources > 0 || overrideSourcesForTesting) && inputs > 0 && !activate.MoveNext())
+        {
+            activate = Activate();
+            StartCoroutine(activate); 
+        }
 
-    public void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.CompareTag("Player"))
-        { inRangeOfPlayer = false; }
-    }
-
-    private void InputPowerHandling() // Check power state
-    {
-        bool linkPower = links.Any(item => item.output);
-        bool channeling = inRangeOfPlayer && Input.GetAxisRaw("Use") != 0;
-
-        if ((links.Count == 0 && channeling) || linkPower)
-        { inputPower = true; }
-        else // If there is no powered inputs
-        { inputPower = false; } 
-
-        if (inputPower != wasInputPower && inputPower) //If inactive & powered, start the array
-        { StartCoroutine(Activate()); }
-
-        wasInputPower = inputPower;
+        dot.color = new Color(dot.color.r, dot.color.g, dot.color.b, playerControl.zoomLevel);
     }
 
     private IEnumerator Activate() // Activate the array for a full cycle
     {
-        spellLogic.Trigger();
-
-        float timer = 0;
-        while (inputPower)
+        float timer = interval;
+        while (inputs > 0)
         {
             timer += Time.deltaTime;
             if (timer >= interval)
             {
-                spellLogic.Sustain();
+                spellLogic.Trigger();
                 timer = 0;
             }
             yield return null;
@@ -127,11 +119,19 @@ public class Spell_Methods : MonoBehaviour
         spellLogic.End();
     }
 
+    public void Output()
+    { 
+        outputTargets.ForEach(item => item.Trigger()); 
+    }
 
-    public IEnumerator PulseOutput()
+    private void SourceVisuals(bool hasSource)
     {
-        output = true;
-        yield return new WaitForSeconds(outputPulseDuration);
-        output = false;
+        // Find target values
+        float value = hasSource ? settings.activeVisualValue : settings.inactiveVisualValue;
+
+        // Set colour to new values
+        Color newColour = Color.HSVToRGB(hue, value, value);
+        dot.color = newColour;
+        colouring.color = newColour;
     }
 }

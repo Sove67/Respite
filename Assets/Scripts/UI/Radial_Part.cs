@@ -27,9 +27,9 @@ public class Radial_Part : MonoBehaviour
         }
     }
 
-    
 
-    public void Create(int id, float innerRadius, float outerRadius, float scale, int partCount, float spacing, int index, Material material, Sprite sprite)
+
+    public void Create(int id, float innerRadius, float outerRadius, float scale, int partCount, float spacing, int index, Material material, Sprite sprite, Color colour)
     {
         Mesh mesh = new Mesh();
         List<Vector3> vertecies = new List<Vector3>();
@@ -69,10 +69,19 @@ public class Radial_Part : MonoBehaviour
         GetComponent<MeshRenderer>().material = material;
 
         if (sprite != null)
-        { icon.GetComponent<SpriteRenderer>().sprite = sprite; }
+        {
+            icon.GetComponent<SpriteMask>().sprite = sprite;
+            Transform colouring = icon.transform.Find("Rune Colouring");
+            colouring.GetComponent<SpriteRenderer>().color = colour;
 
-        float width = outerRadius - innerRadius;
-        container.transform.localScale = new Vector3(width * .75f, width * .75f);
-        container.anchoredPosition = midpoint * 2;
+            float width = outerRadius - innerRadius;
+
+            icon.GetComponent<RectTransform>().transform.localScale = new Vector3(width * icon.transform.localScale.x, width * icon.transform.localScale.y);
+            icon.GetComponent<RectTransform>().anchoredPosition = midpoint * 2;
+
+            container.transform.localScale = new Vector3(width * container.transform.localScale.x, width * container.transform.localScale.y);
+            container.anchoredPosition = midpoint * 2;
+        }
+
     }
 }

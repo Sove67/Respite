@@ -11,6 +11,7 @@ public class Spell_Boulder : Spell_Methods, Spell_Interface
 
     public void Destroy() // Destroy the array
     {
+        StopAllCoroutines();
         for (int i = 0; i < instantiatedBoulders.Count; i++)
         {
             Destroy(instantiatedBoulders[0]);
@@ -25,23 +26,20 @@ public class Spell_Boulder : Spell_Methods, Spell_Interface
         // Unused.
     }
 
-    public void Sustain() // Create a boulder
+    public void Trigger() 
     {
         if (instantiatedBoulders.Count < max)
         {
             Vector3 position = transform.position + (transform.rotation * Vector3.forward * (boulderPrefab.transform.localScale.z / 2 + offset));
 
-            if (!Physics.CheckBox(position, boulderPrefab.transform.localScale / 2, transform.rotation))
+            Collider[] hitColliders = Physics.OverlapBox(position, boulderPrefab.transform.localScale / 2, transform.rotation);
+
+            if (hitColliders.Length == 0 || (hitColliders.Length == 1 && hitColliders[0].CompareTag("Ignore Collisions")))
             {
                 GameObject obj = Instantiate(boulderPrefab, position, transform.rotation, objectParent);
-                obj.GetComponent<Entity>().onDestruction = () => StartCoroutine(PulseOutput());
+                obj.GetComponent<Entity>().onDestruction = () => Output();
                 instantiatedBoulders.Add(obj);
             }
         }
-    }
-
-    public void Trigger() 
-    {
-        // Unused.
     }
 }

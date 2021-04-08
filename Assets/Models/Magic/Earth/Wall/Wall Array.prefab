@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 9142897715933580252}
   - component: {fileID: -9047994531242476998}
-  - component: {fileID: 8318428485656760144}
+  - component: {fileID: -4594621231780766449}
+  - component: {fileID: -3622989383741392470}
   m_Layer: 0
   m_Name: Wall Array
   m_TagString: Untagged
@@ -44,21 +45,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 885891ab58151354eba4cdac5a827f99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  classSprite: {fileID: 21300000, guid: 5f3fa9e299c2aa14c950a82640140789, type: 3}
+  settings: {fileID: 11400000, guid: dd3b2c366d0f4474faee273a77584b99, type: 2}
   spellSprite: {fileID: 21300000, guid: 50c8e5b4d2a24c6418eb2e047f76f6cd, type: 3}
-  classColour: {r: 0.21960784, g: 0.8392157, b: 0.47058824, a: 1}
-  array: {fileID: 5497826742941103401, guid: a5c1eeb31e5b07349b463738824e0b01, type: 3}
-  classIndex: 0
-  interval: 0
+  classIndex: 1
+  interval: 0.5
   duration: 0
-  activeIndefinitely: 1
-  inputPower: 0
+  inputs: 0
   hasOutput: 1
-  outputPulseDuration: 0
+  sources: 0
   wallPrefab: {fileID: 3351371595686209377, guid: af5a0fd6a3dcff64483320910927c522,
     type: 3}
-  instantiation: {fileID: 0}
---- !u!54 &8318428485656760144
+--- !u!135 &-4594621231780766449
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9142897715933580254}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &-3622989383741392470
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -69,7 +79,7 @@ Rigidbody:
   m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 126

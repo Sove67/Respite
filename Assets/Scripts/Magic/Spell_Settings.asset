@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a1b0eac98ee8554a8701a03bad7f0fb, type: 3}
+  m_Name: Spell_Settings
+  m_EditorClassIdentifier: 
+  classRunes:
+  - {fileID: 21300000, guid: 68dbcca013fbbdd4b95e519f70e7e4e3, type: 3}
+  - {fileID: 21300000, guid: 5f3fa9e299c2aa14c950a82640140789, type: 3}
+  - {fileID: 21300000, guid: 3be9cdf3cea76e34ab9b7098b657428d, type: 3}
+  - {fileID: 21300000, guid: c03bc5a8825832047901ad3822902ef3, type: 3}
+  - {fileID: 21300000, guid: 4a5364eb193deb04b9f2d7f495ad5686, type: 3}
+  classColours:
+  - {r: 0.16078429, g: 0.8, b: 0.3534829, a: 1}
+  - {r: 0.8, g: 0.76613736, b: 0.16078429, a: 1}
+  - {r: 0.8, g: 0.16078429, b: 0.22795987, a: 1}
+  - {r: 0.38399994, g: 0.16, b: 0.8, a: 1}
+  - {r: 0.16078429, g: 0.6601935, b: 0.8, a: 1}
+  inactiveVisualValue: 0.5
+  activeVisualValue: 1
+  arrayPrefab: {fileID: 4555487662735427602, guid: 22c5cb2fbc923ec46a69a546748e59ea,
+    type: 3}
+  spellList:
+  - {fileID: 9142897715933580254, guid: 589ebf5bd4d6c6648bda7dc0162b9250, type: 3}
+  - {fileID: 9142897715933580254, guid: 1eacd5bda68e474409b0c2435adf304b, type: 3}
+  - {fileID: 9142897715933580254, guid: 3192160647ddd034284a00cfb63b1694, type: 3}
+  - {fileID: 9142897715933580254, guid: a8635a4911969484497c5690a0c17c1c, type: 3}
