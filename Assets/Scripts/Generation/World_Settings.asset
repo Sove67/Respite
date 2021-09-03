@@ -14,43 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   activeChunkRadius: 2
   seed: 21
-  chunkTiles: 100
-  forestRange: {x: 0, y: 0}
-  tileSize: 2
-  grass: {fileID: 2100000, guid: 5301f2d3750c61f4c8ed655fdd941099, type: 2}
-  attempts: 10
-  townAreaResolution: 5
-  townMinDimension: 10
-  townPrimaryConnectionCount: 3
-  townSecondaryConnectionCount: 0
-  townSectorCount: 10
-  tilesetWallInterior:
-  - {fileID: 8231934599988584795, guid: 282a01313a1f3624494d232198b496e8, type: 3}
+  tileCount: 10
+  tileScale: 2
+  tileRandomizerRange: 3
+  tileset:
   - {fileID: 2847374426757162640, guid: a77bc2f0f7c60f546a96950be329b6e9, type: 3}
-  - {fileID: 157135075226077298, guid: 0e4c0d8f96c212847baf5391d973134f, type: 3}
-  - {fileID: 1623349004336004928, guid: 3fc504312253746448c91a6ca834075d, type: 3}
-  tilesetWallExterior:
   - {fileID: 8231934599988584795, guid: 282a01313a1f3624494d232198b496e8, type: 3}
-  - {fileID: 2847374426757162640, guid: a77bc2f0f7c60f546a96950be329b6e9, type: 3}
   - {fileID: 157135075226077298, guid: 0e4c0d8f96c212847baf5391d973134f, type: 3}
-  houseAreaResolution: 4
-  houseMinDimension: 3
-  housePrimaryConnectionCount: 2
-  houseSecondaryConnectionCount: 2
-  houseSectorCount: 5
-  tilesetHouseInterior:
-  - {fileID: 8231934599988584795, guid: 282a01313a1f3624494d232198b496e8, type: 3}
-  - {fileID: 2847374426757162640, guid: a77bc2f0f7c60f546a96950be329b6e9, type: 3}
-  - {fileID: 157135075226077298, guid: 0e4c0d8f96c212847baf5391d973134f, type: 3}
-  - {fileID: 1623349004336004928, guid: 3fc504312253746448c91a6ca834075d, type: 3}
-  tilesetHouseExterior:
-  - {fileID: 8231934599988584795, guid: 282a01313a1f3624494d232198b496e8, type: 3}
-  - {fileID: 2847374426757162640, guid: a77bc2f0f7c60f546a96950be329b6e9, type: 3}
-  - {fileID: 157135075226077298, guid: 0e4c0d8f96c212847baf5391d973134f, type: 3}
-  nestAreaResolution: 10
-  nestMinDimension: 8
-  nestPrimaryConnectionCount: 6
-  nestSecondaryConnectionCount: 3
-  nestSectorCount: 15
-  tilesetNestInterior: []
-  tilesetNestExterior: []
