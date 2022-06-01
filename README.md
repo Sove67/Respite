@@ -11,3 +11,6 @@ An as-of-yet unfinished top down wave defense survival game. The successor to th
   - Timing with enumeration
   - Defense selection libraries
   - Custom 'magic' sprites
+
+## Dev Log
+The majority of the work I did on this project was documented on my Youtube channel 'Sovereign Realm' in the playlist [Respite](https://www.youtube.com/playlist?list=PL314_0jICJf9q3P-g0nuggDUCJBIibraF)
